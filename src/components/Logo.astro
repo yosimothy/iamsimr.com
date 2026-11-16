@@ -12,5 +12,5 @@ const { size = 28 } = Astro.props;
 </svg>
 <style>
   .blend { mix-blend-mode: multiply; }
-  @media (prefers-color-scheme: dark) { .blend { mix-blend-mode: normal; } }
+  :global(:root[data-theme='dark']) .blend { mix-blend-mode: normal; }
 </style>

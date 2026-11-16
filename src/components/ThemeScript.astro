@@ -1,0 +1,31 @@
+---
+// Runs before the page paints, so there's never a flash of the wrong theme.
+// The site follows the device's light/dark setting. The footer's logo is a
+// hidden switch that overrides it; the choice is remembered in localStorage.
+---
+<script is:inline>
+  (() => {
+    const KEY = 'theme';
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const saved = () => { try { return localStorage.getItem(KEY); } catch { return null; } };
+    const apply = () => {
+      const t = saved() || (mq.matches ? 'dark' : 'light');
+      document.documentElement.dataset.theme = t;
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.content = t === 'dark' ? '#17181a' : '#fdfdfb';
+    };
+    apply();
+    mq.addEventListener('change', apply);
+    window.__flipTheme = () => {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      // Flipping back to what the device wants clears the override.
+      try {
+        if (next === (mq.matches ? 'dark' : 'light')) localStorage.removeItem(KEY);
+        else localStorage.setItem(KEY, next);
+      } catch {}
+      document.documentElement.dataset.theme = next;
+      apply();
+      return next;
+    };
+  })();
+</script>

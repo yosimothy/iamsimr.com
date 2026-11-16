@@ -11,7 +11,12 @@ const year = new Date().getFullYear();
   </svg>
   <div class="wrap inner">
     <div>
-      <p class="sign"><Logo size={24} /> {SITE.name}</p>
+      <p class="sign">
+        <!-- Easter egg: the logo is a light switch. -->
+        <button class="lamp" type="button" aria-label="Switch between light and dark mode"><Logo size={24} /></button>
+        {SITE.name}
+        <span class="lamp-note hand" aria-live="polite"></span>
+      </p>
       <p class="muted">Built with Astro, hosted on AWS. <a href="/blog/how-this-site-is-built/">Here's how</a>.</p>
       <p class="hand muted">thanks for reading ✎</p>
     </div>
@@ -23,12 +28,31 @@ const year = new Date().getFullYear();
   </div>
   <p class="wrap muted small">© {year} {SITE.name}</p>
 </footer>
+<script>
+  const btn = document.querySelector<HTMLButtonElement>('.lamp');
+  const note = document.querySelector<HTMLElement>('.lamp-note');
+  let t: number | undefined;
+  btn?.addEventListener('click', () => {
+    const next = (window as any).__flipTheme?.();
+    if (!note || !next) return;
+    note.textContent = next === 'dark' ? 'lights off ✎' : 'lights on ✎';
+    note.classList.add('show');
+    clearTimeout(t);
+    t = window.setTimeout(() => note.classList.remove('show'), 1800);
+  });
+</script>
 <style>
   footer { margin-top: 4rem; padding-bottom: 1.5rem; font-size: 0.95rem; }
   .squiggle { display: block; width: 100%; height: 40px; margin-bottom: 2rem; }
   .inner { display: flex; justify-content: space-between; gap: 2rem; flex-wrap: wrap; }
   .sign { display: flex; align-items: center; gap: 0.5rem; font: 800 1.25rem/1 var(--display); margin-bottom: 0.7rem; }
   .hand { font-size: 1.4rem; margin: 0; }
+  .lamp { all: unset; display: inline-flex; cursor: default; border-radius: 50%; transition: transform 0.3s ease; }
+  .lamp:hover { transform: rotate(-12deg); }
+  .lamp:active { transform: rotate(-12deg) scale(0.9); }
+  .lamp:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+  .lamp-note { font: 400 1.35rem/1 var(--hand); color: var(--red); opacity: 0; transform: translateY(4px); transition: opacity 0.3s ease, transform 0.3s ease; }
+  .lamp-note.show { opacity: 1; transform: none; }
   ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
   .small { font-size: 0.85rem; margin-top: 1.5rem; }
 </style>

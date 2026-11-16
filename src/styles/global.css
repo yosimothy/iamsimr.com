@@ -45,30 +45,30 @@
   color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Night mode: the same notebook, on a blackboard. */
-    --paper: #17181a;
-    --paper-2: #202124;
-    --ink: #f1f1ee;
-    --ink-2: #c2c2bd;
-    --ink-3: #8d8d88;
-    --dot: #34363a;
-    --line: #f1f1ee;
-    --rule: #2e3033;
-    --red: #ff5a4a;
-    --blue: #6f97ff;
-    --yellow: #ffd23f;
-    --red-soft: #4a1f1b;
-    --blue-soft: #1c2a4d;
-    --yellow-soft: #4a3c10;
-    --tape: rgb(255 210 63 / 35%);
-    --sticky-y: #f3d56a;
-    --sticky-b: #a9bff0;
-    --sticky-r: #f0aa9e;
-    --shadow-soft: 0 1px 2px rgb(0 0 0 / 30%), 0 10px 28px -6px rgb(0 0 0 / 50%);
-    color-scheme: dark;
-  }
+/* Dark mode follows the device unless the visitor flips the hidden switch
+   (see ThemeScript.astro), which sets data-theme on <html>. */
+:root[data-theme='dark'] {
+  /* Night mode: the same notebook, on a blackboard. */
+  --paper: #17181a;
+  --paper-2: #202124;
+  --ink: #f1f1ee;
+  --ink-2: #c2c2bd;
+  --ink-3: #8d8d88;
+  --dot: #34363a;
+  --line: #f1f1ee;
+  --rule: #2e3033;
+  --red: #ff5a4a;
+  --blue: #6f97ff;
+  --yellow: #ffd23f;
+  --red-soft: #4a1f1b;
+  --blue-soft: #1c2a4d;
+  --yellow-soft: #4a3c10;
+  --tape: rgb(255 210 63 / 35%);
+  --sticky-y: #f3d56a;
+  --sticky-b: #a9bff0;
+  --sticky-r: #f0aa9e;
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 30%), 0 10px 28px -6px rgb(0 0 0 / 50%);
+  color-scheme: dark;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -119,7 +119,7 @@ p { margin: 0 0 1.1em; }
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
 }
-@media (prefers-color-scheme: dark) { .mark { color: #141414; background-size: 100% 100%; background-position: 0 0; } }
+:root[data-theme='dark'] .mark { color: #141414; background-size: 100% 100%; background-position: 0 0; }
 /* Hand-drawn underline in a marker colour */
 .scribble {
   text-decoration: none;
@@ -202,9 +202,7 @@ section { padding-block: clamp(2.75rem, 7vw, 5rem); }
 .prose img { border-radius: var(--radius); box-shadow: var(--shadow-soft); margin: 1.5em 0; }
 .prose a { text-decoration-color: var(--red); }
 
-@media (prefers-color-scheme: dark) {
-  .astro-code, .astro-code span { color: var(--shiki-dark) !important; background-color: var(--shiki-dark-bg) !important; }
-}
+:root[data-theme='dark'] :is(.astro-code, .astro-code span) { color: var(--shiki-dark) !important; background-color: var(--shiki-dark-bg) !important; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 
 /* ---------- Sticky notes: flat paper, soft corners ---------- */
@@ -234,8 +232,6 @@ a.sticky:hover { color: #1a1a1a; transform: rotate(0deg) translateY(-4px); box-s
 
 /* Code highlighted at build time for CMS content (Shiki dual theme) */
 .prose .shiki { padding: 1.1em 1.2em; border-radius: var(--radius); overflow-x: auto; font-size: 0.88rem; box-shadow: var(--shadow-soft); }
-@media (prefers-color-scheme: dark) {
-  .shiki, .shiki span { color: var(--shiki-dark) !important; background-color: var(--shiki-dark-bg) !important; }
-}
+:root[data-theme='dark'] :is(.shiki, .shiki span) { color: var(--shiki-dark) !important; background-color: var(--shiki-dark-bg) !important; }
 .prose figure { margin: 1.8em 0; }
 .prose figcaption { font-family: var(--hand); font-size: 1.3rem; color: var(--ink-2); text-align: center; margin-top: 0.4rem; }
