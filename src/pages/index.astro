@@ -18,8 +18,8 @@ const projects = allProjects
 <Base>
   <section class="hero wrap">
     <div class="intro">
-      <p class="eyebrow"><img class="me" src="/sim-sketch.svg" alt="" width="626" height="674" /><img class="me me-dark" src="/sim-sketch-dark.svg" alt="" width="626" height="674" />hi, I'm {SITE.name} <span class="hi-hand" role="img" aria-label="waving hand">👋</span><br /><span class="shares">this website shares:</span></p>
-      <h1>Things I'm <span class="mark">learning</span>, making, and occasionally getting wrong.</h1>
+      <p class="eyebrow"><span class="me" aria-hidden="true"><img src="/sim-sketch.svg" alt="" width="626" height="674" /></span>hi, I'm {SITE.name} <span class="hi-hand" role="img" aria-label="waving hand">👋</span><br /><span class="shares">this website shares:</span></p>
+      <h1>Things I'm <span class="mark">learning</span>, making, and <span class="squig">occasionally</span> getting wrong.</h1>
       <p class="lede">
         You'll find my notes on the web and AI, on whichever hobby has my attention this month, and on the projects that come out of both.
         Some entries are polished, most are works in progress. Have a flip through.
@@ -96,15 +96,21 @@ const projects = allProjects
     mask-image: radial-gradient(closest-side, #000 75%, transparent); }
   .hero h1 { max-width: 15ch; }
   .eyebrow .shares { color: var(--ink-2); }
+  /* Hand-drawn marker squiggle under "occasionally". */
+  .squig { position: relative; white-space: nowrap; isolation: isolate; }
+  .squig::after { content: ''; position: absolute; left: -0.04em; right: -0.06em; bottom: -0.13em; height: 0.24em; background: var(--blue); -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 12'%3E%3Cpath d='M-6 6q6-6.5 12 0t12 0 12 0' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") repeat-x 0 50% / 0.5em 100%; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 12'%3E%3Cpath d='M-6 6q6-6.5 12 0t12 0 12 0' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") repeat-x 0 50% / 0.5em 100%; transform: rotate(-1.2deg); z-index: -1; }
   /* Sketch of Sim: sits on the page beside the greeting, behind the text. */
   .eyebrow { position: relative; }
   .me { position: absolute; z-index: -1; width: 170px; height: auto; left: calc(100% + 80px); top: 14px; transform: rotate(9deg); pointer-events: none; user-select: none; }
-  .me-dark { display: none; }
-  :global(:root[data-theme='dark']) .me { display: none; }
-  :global(:root[data-theme='dark']) .me-dark { display: block; }
+  .me img { display: block; width: 100%; height: auto; }
+  /* Dark mode: the sketch is a white sticky note taped to the page. */
+  :global(:root[data-theme='dark']) .me { background: #f6f4ee; border-radius: 6px; padding: 10px 10px 0; box-shadow: 0 6px 18px rgb(0 0 0 / 0.35); }
+  :global(:root[data-theme='dark']) .me::before { content: ''; position: absolute; top: -9px; left: 50%; width: 58px; height: 20px; margin-left: -29px; background: rgb(255 241 191 / 0.55); transform: rotate(-4deg); border-radius: 2px; }
   @media (max-width: 560px) {
     .eyebrow { padding: 34px 0 0 92px; }
     .me { width: 92px; left: -6px; top: auto; bottom: -6px; transform: rotate(-5deg); transform-origin: 50% 100%; }
+    :global(:root[data-theme='dark']) .me { padding: 5px 5px 0; bottom: 0; }
+    :global(:root[data-theme='dark']) .me::before { width: 38px; height: 13px; margin-left: -19px; top: -6px; }
   }
   .lede { font-size: 1.18rem; max-width: 50ch; color: var(--ink-2); }
   .key { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 1.2rem; margin: -0.4rem 0 1.4rem; padding: 0.55rem 1.1rem; border-radius: 999px; background: var(--paper); box-shadow: var(--shadow-soft); width: fit-content; font-size: 0.92rem; }
