@@ -16,8 +16,8 @@ const { size = '1.7rem' } = Astro.props;
   /* Hand-dabbed tittles: slightly lopsided, tilted, never perfectly round. */
   .dab { position: absolute; left: 50%; overflow: visible; transition: transform 0.35s cubic-bezier(.3,1.7,.5,1); }
   .dab path { fill: currentColor; }
-  .red { color: var(--red); width: 0.27em; height: 0.27em; top: 0.07em; margin-left: -0.095em; transform: rotate(-22deg); }
-  .blue { color: var(--blue); width: 0.31em; height: 0.31em; top: 0.03em; margin-left: -0.15em; transform: rotate(14deg); }
+  .red { color: var(--red); width: 0.22em; height: 0.22em; top: 0.095em; margin-left: -0.07em; transform: rotate(-22deg); }
+  .blue { color: var(--blue); width: 0.25em; height: 0.25em; top: 0.06em; margin-left: -0.12em; transform: rotate(14deg); }
   :global(a:hover) > .wordmark .red, :global(button:hover) > .wordmark .red { transform: translateY(-0.1em) rotate(-34deg); }
   :global(a:hover) > .wordmark .blue, :global(button:hover) > .wordmark .blue { transform: translateY(-0.1em) rotate(2deg); transition-delay: 0.06s; }
 </style>
