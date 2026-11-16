@@ -4,7 +4,7 @@ import Logo from './Logo.astro';
 const path = Astro.url.pathname;
 ---
 <header class="wrap">
-  <a href="/" class="logo" aria-label={`${SITE.name}, home`}><Logo /><span>{SITE.name}</span></a>
+  <a href="/" class="logo" aria-label="iamsimr, home"><Logo /></a>
   <nav aria-label="Main">
     {SITE.nav.map((item) => (
       <a href={item.href} class={`n-${item.color}`} aria-current={path.startsWith(item.href) ? 'page' : undefined}>{item.label}</a>
