@@ -18,11 +18,10 @@ const projects = allProjects
 <Base>
   <section class="hero wrap">
     <div class="intro">
-      <p class="eyebrow">hi, I'm {SITE.name} <span class="hi-hand" role="img" aria-label="waving hand">👋</span></p>
+      <p class="eyebrow"><img class="me" src="/sim-sketch.svg" alt="" width="626" height="674" />hi, I'm {SITE.name} <span class="hi-hand" role="img" aria-label="waving hand">👋</span><br /><span class="shares">this website shares:</span></p>
       <h1>Things I'm <span class="mark">learning</span>, making, and occasionally getting wrong.</h1>
-      <!-- TODO: make this paragraph sound like you. -->
       <p class="lede">
-        Notes on the web, on whichever hobby has my attention this month, and on the projects that come out of both.
+        You'll find my notes on the web and AI, on whichever hobby has my attention this month, and on the projects that come out of both.
         Some entries are polished, most are works in progress. Have a flip through.
       </p>
     </div>
@@ -96,6 +95,16 @@ const projects = allProjects
     -webkit-mask-image: radial-gradient(closest-side, #000 75%, transparent);
     mask-image: radial-gradient(closest-side, #000 75%, transparent); }
   .hero h1 { max-width: 15ch; }
+  .eyebrow .shares { color: var(--ink-2); }
+  /* Sketch of Sim: sits on the page beside the greeting, behind the text. */
+  .eyebrow { position: relative; }
+  .me { position: absolute; z-index: -1; width: 170px; height: auto; left: calc(100% + 80px); top: 14px; transform: rotate(9deg); pointer-events: none; user-select: none; }
+  :global(:root[data-theme='dark']) .me { background: #fbfaf6; border-radius: 6px; padding: 8px 8px 0; box-shadow: var(--shadow-soft); }
+  @media (max-width: 560px) {
+    .eyebrow { padding: 34px 0 0 92px; }
+    .me { width: 92px; left: -6px; top: auto; bottom: -6px; transform: rotate(-5deg); transform-origin: 50% 100%; }
+    :global(:root[data-theme='dark']) .me { padding: 4px 4px 0; bottom: 0; }
+  }
   .lede { font-size: 1.18rem; max-width: 50ch; color: var(--ink-2); }
   .key { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 1.2rem; margin: -0.4rem 0 1.4rem; padding: 0.55rem 1.1rem; border-radius: 999px; background: var(--paper); box-shadow: var(--shadow-soft); width: fit-content; font-size: 0.92rem; }
   .key dt { color: var(--red); font-size: 1.45rem; margin-right: 0.2rem; }
