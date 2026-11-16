@@ -11,14 +11,19 @@ Parameters:
     Default: iamsimr.com
   AppleDomainVerification:
     Type: String
+    Default: ''
     Description: >
-      The value of your existing "apple-domain=..." TXT record, copied from your
-      current DNS provider (include the "apple-domain=" prefix).
+      Optional. The "apple-domain=..." TXT value from iCloud's Custom Email Domain
+      page (include the prefix). Mail is delivered by the MX records alone; Apple
+      uses this to re-verify ownership, and will show it if it ever asks.
   DkimTarget:
     Type: String
+    Default: sig1.dkim.iamsimr.com.at.icloudmailadmin.com
     Description: >
-      The target of your existing sig1._domainkey CNAME record, e.g.
-      sig1.dkim.iamsimr.com.at.icloudmailadmin.com
+      Target of the sig1._domainkey CNAME (iCloud's DKIM key for this domain).
+
+Conditions:
+  HasAppleVerification: !Not [!Equals [!Ref AppleDomainVerification, '']]
 
 Resources:
   # A hosted zone is AWS's copy of your domain's DNS "phone book".
@@ -51,9 +56,10 @@ Resources:
       Name: !Ref DomainName
       Type: TXT
       TTL: '3600'
-      ResourceRecords:
-        - !Sub '"${AppleDomainVerification}"'
-        - '"v=spf1 include:icloud.com ~all"'
+      ResourceRecords: !If
+        - HasAppleVerification
+        - [!Sub '"${AppleDomainVerification}"', '"v=spf1 include:icloud.com ~all"']
+        - ['"v=spf1 include:icloud.com ~all"']
 
   # DKIM: a public key other servers use to verify mail really came from you.
   MailDKIM:
