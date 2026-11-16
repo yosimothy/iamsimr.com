@@ -51,7 +51,7 @@ jobs:
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-          aws-region: us-east-1
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
 
       # Fingerprinted assets (CSS/JS/fonts in _astro/) never change name-for-content,
       # so browsers can cache them for a year. HTML must always be revalidated.

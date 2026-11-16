@@ -15,6 +15,13 @@ Expected cost: about **$0.50–1/month** (the Route 53 hosted zone) plus your do
       *Why:* the single best protection against surprise bills while you learn.
 - [ ] Switch the console region (top right) to **N. Virginia (us-east-1)**.
       *Why:* CloudFront only accepts HTTPS certificates created in us-east-1.
+      *If your account only allows CloudFormation in another region* (AWS's
+      free-plan "Projects" accounts lock it to one region): request the
+      certificate yourself in us-east-1 (ACM → Request → iamsimr.com and
+      www.iamsimr.com → DNS validation → "Create records in Route 53"), wait for
+      "Issued", then deploy both stacks in your allowed region and pass the
+      certificate's ARN as `CertificateArn`. Also add a repo variable
+      `AWS_REGION` with that region.
 - [ ] This repo pushed to GitHub as `yosimothy/iamsimr.com`.
       (If you choose a different name, use it in step 3.)
 

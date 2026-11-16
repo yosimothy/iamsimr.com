@@ -3,7 +3,9 @@ Description: >
   Step 2 of 2. Everything that serves the website: a private S3 bucket for the
   files, a CloudFront CDN in front of it with HTTPS, DNS records pointing the
   domain at CloudFront, and an IAM role GitHub Actions uses to deploy.
-  MUST be deployed in us-east-1 (CloudFront only reads certificates from there).
+  CloudFront only reads certificates from us-east-1. Either deploy this stack
+  in us-east-1 (it creates the certificate), or deploy it in any region and
+  pass CertificateArn: a certificate you already created in us-east-1.
   Create the dns stack first and switch your registrar's nameservers, or the
   certificate will wait for validation.
 
@@ -26,8 +28,16 @@ Parameters:
       An AWS account can only have one GitHub OIDC provider. Leave 'true' unless
       you have already created one for another project.
 
+  CertificateArn:
+    Type: String
+    Default: ''
+    Description: >
+      Optional. ARN of an existing, validated ACM certificate in us-east-1 for
+      the domain and www. Leave empty to create one (stack must be in us-east-1).
+
 Conditions:
   CreateOIDC: !Equals [!Ref CreateGitHubOIDCProvider, 'true']
+  CreateCert: !Equals [!Ref CertificateArn, '']
 
 Resources:
   # ---------- HTTPS certificate (free) ----------
@@ -35,6 +45,7 @@ Resources:
   # in Route 53, CloudFormation adds that record for you automatically.
   Certificate:
     Type: AWS::CertificateManager::Certificate
+    Condition: CreateCert
     Properties:
       DomainName: !Ref DomainName
       SubjectAlternativeNames: [!Sub 'www.${DomainName}']
@@ -151,7 +162,7 @@ Resources:
         IPV6Enabled: true
         PriceClass: PriceClass_100 # North America + Europe edges: cheapest
         ViewerCertificate:
-          AcmCertificateArn: !Ref Certificate
+          AcmCertificateArn: !If [CreateCert, !Ref Certificate, !Ref CertificateArn]
           SslSupportMethod: sni-only
           MinimumProtocolVersion: TLSv1.2_2021
         Origins:
