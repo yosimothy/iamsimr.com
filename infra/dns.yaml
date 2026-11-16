@@ -1,0 +1,75 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Step 1 of 2. The Route 53 hosted zone for iamsimr.com, plus the iCloud Mail
+  records so hey@iamsimr.com keeps working once DNS moves to AWS.
+  After this stack is created, copy the four NameServers from its Outputs into
+  your domain registrar. Deploy in us-east-1.
+
+Parameters:
+  DomainName:
+    Type: String
+    Default: iamsimr.com
+  AppleDomainVerification:
+    Type: String
+    Description: >
+      The value of your existing "apple-domain=..." TXT record, copied from your
+      current DNS provider (include the "apple-domain=" prefix).
+  DkimTarget:
+    Type: String
+    Description: >
+      The target of your existing sig1._domainkey CNAME record, e.g.
+      sig1.dkim.iamsimr.com.at.icloudmailadmin.com
+
+Resources:
+  # A hosted zone is AWS's copy of your domain's DNS "phone book".
+  # It costs $0.50/month, the only fixed cost of this whole setup.
+  HostedZone:
+    Type: AWS::Route53::HostedZone
+    Properties:
+      Name: !Ref DomainName
+      HostedZoneConfig:
+        Comment: Personal site and iCloud mail
+
+  # --- iCloud custom-domain email ---
+  # MX records tell other mail servers where to deliver mail for @iamsimr.com.
+  MailMX:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZone
+      Name: !Ref DomainName
+      Type: MX
+      TTL: '3600'
+      ResourceRecords:
+        - 10 mx01.mail.icloud.com.
+        - 10 mx02.mail.icloud.com.
+
+  # TXT: proves to Apple you own the domain, and SPF says iCloud may send as you.
+  RootTXT:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZone
+      Name: !Ref DomainName
+      Type: TXT
+      TTL: '3600'
+      ResourceRecords:
+        - !Sub '"${AppleDomainVerification}"'
+        - '"v=spf1 include:icloud.com ~all"'
+
+  # DKIM: a public key other servers use to verify mail really came from you.
+  MailDKIM:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZone
+      Name: !Sub sig1._domainkey.${DomainName}
+      Type: CNAME
+      TTL: '3600'
+      ResourceRecords:
+        - !Ref DkimTarget
+
+Outputs:
+  HostedZoneId:
+    Description: Pass this to the site stack.
+    Value: !Ref HostedZone
+  NameServers:
+    Description: Set these four as the nameservers at your registrar.
+    Value: !Join [', ', !GetAtt HostedZone.NameServers]

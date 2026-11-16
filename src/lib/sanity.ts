@@ -1,0 +1,116 @@
+/*
+  Sanity → Astro bridge.
+
+  The blog and projects collections are loaded from Sanity at build time.
+  Set SANITY_DISABLE=1 to build from the Markdown files in src/content/ instead
+  (handy offline, or if Sanity is ever down).
+
+  Each document's rich text (Portable Text) is turned into HTML here, at build
+  time, so pages stay static: no CMS calls happen when someone visits the site.
+*/
+import { createClient } from '@sanity/client';
+import { toHTML, escapeHTML } from '@portabletext/to-html';
+import { codeToHtml } from 'shiki';
+import type { Loader } from 'astro/loaders';
+
+const env = (k: string) => (import.meta.env?.[k] as string | undefined) ?? process.env[k];
+
+export const sanityConfig = {
+  projectId: env('SANITY_PROJECT_ID') || 'j76vr3np', // public ID, safe to commit
+  dataset: env('SANITY_DATASET') ?? 'production',
+};
+export const useSanity = !env('SANITY_DISABLE');
+
+function client() {
+  return createClient({
+    projectId: sanityConfig.projectId!,
+    dataset: sanityConfig.dataset,
+    apiVersion: '2025-01-01',
+    useCdn: false, // builds want the freshest published content
+    perspective: 'published', // drafts never reach the site
+    token: env('SANITY_READ_TOKEN'), // only needed if the dataset is private
+    ...(env('SANITY_API_HOST') ? { apiHost: env('SANITY_API_HOST'), useProjectHostname: false } : {}), // for local testing
+  });
+}
+
+type Block = { _type: string; _key: string; [k: string]: any };
+
+/** Portable Text → HTML, with syntax-highlighted code and responsive images. */
+async function renderBody(blocks: Block[] = []): Promise<string> {
+  // Highlight code blocks first (async), then render everything (sync).
+  const highlighted = new Map<string, string>();
+  for (const b of blocks) {
+    if (b._type === 'code' && b.code) {
+      try {
+        highlighted.set(b._key, await codeToHtml(b.code, {
+          lang: b.language || 'text',
+          themes: { light: 'github-light', dark: 'github-dark' },
+        }));
+      } catch {
+        highlighted.set(b._key, `<pre><code>${escapeHTML(b.code)}</code></pre>`);
+      }
+    }
+  }
+  return toHTML(blocks as any, {
+    components: {
+      types: {
+        code: ({ value }) => highlighted.get(value._key) ?? '',
+        image: ({ value }) => {
+          if (!value?.url) return '';
+          const alt = escapeHTML(value.alt ?? '');
+          const cap = value.caption ? `<figcaption>${escapeHTML(value.caption)}</figcaption>` : '';
+          return `<figure><img src="${value.url}?w=1400&auto=format" alt="${alt}" loading="lazy" />${cap}</figure>`;
+        },
+      },
+      marks: {
+        link: ({ children, value }) => {
+          const href = escapeHTML(value?.href ?? '#');
+          const ext = /^https?:\/\//.test(href) ? ' rel="noopener"' : '';
+          return `<a href="${href}"${ext}>${children}</a>`;
+        },
+      },
+    },
+  });
+}
+
+/** Plain text of a body, used for reading-time estimates. */
+function plainText(blocks: Block[] = []) {
+  return blocks
+    .filter((b) => b._type === 'block')
+    .map((b) => (b.children ?? []).map((c: any) => c.text).join(''))
+    .join('\n\n');
+}
+
+// Pull image URLs alongside the body so the renderer doesn't need extra lookups.
+const BODY = `body[]{..., _type == "image" => {..., "url": asset->url}}`;
+
+const QUERIES = {
+  post: `*[_type == "post" && defined(slug.current)]{
+    "id": slug.current, title, description,
+    "date": publishedAt, "updated": updatedAt,
+    "tags": coalesce(tags, []), ${BODY}
+  }`,
+  project: `*[_type == "project" && defined(slug.current)]{
+    "id": slug.current, title, summary, role,
+    "stack": coalesce(stack, []), link, repo,
+    "order": coalesce(order, 100), "featured": coalesce(featured, false), ${BODY}
+  }`,
+};
+
+/** An Astro content loader that reads one Sanity document type. */
+export function sanityLoader(type: keyof typeof QUERIES): Loader {
+  return {
+    name: `sanity-${type}`,
+    load: async ({ store, parseData, logger }) => {
+      const docs: any[] = await client().fetch(QUERIES[type]);
+      logger.info(`Loaded ${docs.length} ${type} document(s) from Sanity`);
+      store.clear();
+      for (const { id, body, ...fields } of docs) {
+        // Drop nulls so schema defaults apply.
+        const raw = Object.fromEntries(Object.entries(fields).filter(([, v]) => v !== null));
+        const data = await parseData({ id, data: raw });
+        store.set({ id, data, body: plainText(body), rendered: { html: await renderBody(body) } });
+      }
+    },
+  };
+}

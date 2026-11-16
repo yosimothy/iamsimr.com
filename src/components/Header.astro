@@ -1,0 +1,22 @@
+---
+import { SITE } from '../site.config';
+import Logo from './Logo.astro';
+const path = Astro.url.pathname;
+---
+<header class="wrap">
+  <a href="/" class="logo" aria-label={`${SITE.name}, home`}><Logo /><span>{SITE.name}</span></a>
+  <nav aria-label="Main">
+    {SITE.nav.map((item) => (
+      <a href={item.href} class={`n-${item.color}`} aria-current={path.startsWith(item.href) ? 'page' : undefined}>{item.label}</a>
+    ))}
+  </nav>
+</header>
+<style>
+  header { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem 1.5rem; padding-block: 1.3rem; flex-wrap: wrap; }
+  .logo { display: inline-flex; align-items: center; gap: 0.55rem; font: 800 1.4rem/1 var(--display); text-decoration: none; letter-spacing: -0.03em; }
+  .logo:hover { color: var(--ink); }
+  nav { display: flex; gap: 0.25rem 1.3rem; flex-wrap: wrap; }
+  nav a { --c: var(--ink); text-decoration: none; font-weight: 550; font-size: 0.97rem; padding: 0.15em 0.1em; background: linear-gradient(var(--c), var(--c)) no-repeat 0 100% / 0 4px; transition: background-size 0.2s ease; }
+  nav a:hover, nav a[aria-current='page'] { color: var(--ink); background-size: 100% 4px; }
+  .n-blue { --c: var(--blue); } .n-red { --c: var(--red); } .n-yellow { --c: var(--yellow); }
+</style>

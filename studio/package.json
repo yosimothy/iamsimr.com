@@ -1,0 +1,20 @@
+{
+  "name": "iamsimr-studio",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Sanity Studio: the editor where posts and projects are written.",
+  "type": "module",
+  "scripts": {
+    "dev": "sanity dev",
+    "build": "sanity build",
+    "deploy": "sanity deploy"
+  },
+  "dependencies": {
+    "@sanity/code-input": "^7.3.16",
+    "@sanity/vision": "^6.23.0",
+    "react": "^19.2.2",
+    "react-dom": "^19.2.2",
+    "sanity": "^6.23.0",
+    "styled-components": "^6.1.15"
+  }
+}

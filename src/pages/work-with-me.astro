@@ -1,0 +1,56 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../site.config';
+// TODO: adjust services and process to what you actually offer.
+const services = [
+  { title: 'Websites', body: 'Fast, accessible, easy-to-edit sites for small businesses, creators and professionals.', c: 'c-blue' },
+  { title: 'Small web apps', body: 'Booking forms, dashboards, internal tools: focused apps that do one job well.', c: 'c-red' },
+  { title: 'Hosting, set up properly', body: 'Domains, HTTPS and automatic deploys on AWS, explained so you own it.', c: 'c-yellow' },
+];
+const steps = [
+  ['A quick call', 'Twenty minutes on what you need and whether I am the right fit.'],
+  ['A written plan', 'Scope, timeline and a fixed price, so there are no surprises.'],
+  ['Building in the open', 'Weekly check-ins and a live preview link you can click through as it takes shape.'],
+  ['Launch & handover', 'I ship it, show you how to edit it, and stay on call for two weeks after.'],
+];
+---
+<Base title="Work with me" description="Freelance web development, and open to the right full-time role.">
+  <section class="wrap intro">
+    <p class="eyebrow">work with me</p>
+    <h1>Like how I think? <span class="mark">Let's build something.</span></h1>
+    <p class="lede">{SITE.availability} The <a href="/projects/">projects</a> and <a href="/blog/">notes</a> on this site are the most honest picture of how I work: what I care about, how I explain things, and what I ship.</p>
+    <div class="cta">
+      <a class="btn blue" href={`mailto:${SITE.email}?subject=Project%20inquiry`}>Email {SITE.email}</a>
+      <!-- TODO: add public/resume.pdf and uncomment:
+      <a class="btn ghost" href="/resume.pdf">Résumé (PDF)</a> -->
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2>What I can help with</h2>
+    <div class="grid">
+      {services.map((s, i) => <div class={`card taped ${s.c}`} style={`--tilt:${i % 2 ? '3deg' : '-4deg'}`}><h3>{s.title}</h3><p class="muted">{s.body}</p></div>)}
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2>How a project goes</h2>
+    <ol class="steps">
+      {steps.map(([t, b], i) => <li><span class="num hand">{i + 1}.</span><div><h3>{t}</h3><p class="muted">{b}</p></div></li>)}
+    </ol>
+  </section>
+</Base>
+<style>
+  .intro { position: relative; }
+  .intro h1, .intro .lede, .intro .cta { position: relative; z-index: 1; }
+  .intro h1 { max-width: 18ch; }
+  .lede { font-size: 1.18rem; max-width: 58ch; color: var(--ink-2); }
+  .cta { display: flex; gap: 0.9rem; flex-wrap: wrap; margin-top: 1.6rem; }
+  .card p { margin: 0; }
+  .steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 1.5rem 2rem; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+  .steps li { display: flex; gap: 0.8rem; padding: 1.1rem 1.2rem; border-radius: var(--radius); background: var(--paper); box-shadow: var(--shadow-soft); border-top: 5px solid var(--ink-3); }
+  .steps li:nth-child(1) { border-color: var(--blue); } .steps li:nth-child(2) { border-color: var(--red); }
+  .steps li:nth-child(3) { border-color: var(--yellow); }
+  .num { font-size: 2.2rem; color: var(--ink-2); line-height: 0.9; }
+  .steps h3 { margin-bottom: 0.3em; }
+</style>

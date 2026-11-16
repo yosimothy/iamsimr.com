@@ -1,0 +1,241 @@
+/* Handwriting: Nanum Pen Script, a real felt-pen hand. Its letters run small,
+   so size-adjust scales it up to sit comfortably next to Inter. */
+@font-face {
+  font-family: 'Sim Hand';
+  src: url('/fonts/hand.woff2') format('woff2');
+  font-display: swap;
+  size-adjust: 128%;
+}
+
+/* ------------------------------------------------------------------
+   Design tokens. Whiteboard white, marker primaries, a well-used
+   bullet journal. Change these and the whole site follows.
+   ------------------------------------------------------------------ */
+:root {
+  --paper: #fdfdfb;          /* whiteboard white */
+  --paper-2: #f4f4f0;        /* a slightly grubbier page */
+  --ink: #141414;            /* black marker */
+  --ink-2: #4d4d4d;
+  --ink-3: #8a8a8a;
+  --dot: #cfd3d8;            /* dot-grid dots */
+  --line: #141414;           /* Mondrian lines are black and thick */
+  --rule: #e2e2dc;
+
+  --red: #d62a1e;
+  --blue: #1f4fbf;
+  --yellow: #f7c51e;
+  --red-soft: #fbd9d5;
+  --blue-soft: #d9e3fb;
+  --yellow-soft: #fff1bf;
+  --tape: rgb(247 197 30 / 55%);
+  /* Sticky-note paper: real pads are lighter and a bit chalky */
+  --sticky-y: #ffe27a;
+  --sticky-b: #b9cdfb;
+  --sticky-r: #ffbcb0;
+  --shadow-soft: 0 1px 2px rgb(20 20 20 / 6%), 0 8px 24px -6px rgb(20 20 20 / 14%);
+
+  --display: 'Bricolage Grotesque Variable', 'Inter Variable', system-ui, sans-serif;
+  --sans: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --hand: 'Sim Hand', 'Bradley Hand', 'Comic Sans MS', cursive;
+  --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --measure: 68ch;
+  --wide: 1120px;
+  --radius: 16px;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Night mode: the same notebook, on a blackboard. */
+    --paper: #17181a;
+    --paper-2: #202124;
+    --ink: #f1f1ee;
+    --ink-2: #c2c2bd;
+    --ink-3: #8d8d88;
+    --dot: #34363a;
+    --line: #f1f1ee;
+    --rule: #2e3033;
+    --red: #ff5a4a;
+    --blue: #6f97ff;
+    --yellow: #ffd23f;
+    --red-soft: #4a1f1b;
+    --blue-soft: #1c2a4d;
+    --yellow-soft: #4a3c10;
+    --tape: rgb(255 210 63 / 35%);
+    --sticky-y: #f3d56a;
+    --sticky-b: #a9bff0;
+    --sticky-r: #f0aa9e;
+    --shadow-soft: 0 1px 2px rgb(0 0 0 / 30%), 0 10px 28px -6px rgb(0 0 0 / 50%);
+    color-scheme: dark;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+main { overflow-x: clip; } /* sketches may run past the edge; never cause sideways scroll */
+body {
+  margin: 0;
+  color: var(--ink);
+  font: 400 1.0625rem/1.7 var(--sans);
+  -webkit-font-smoothing: antialiased;
+  font-synthesis: none;
+  /* Dot-grid page, plus a couple of faint smudges from a hand that's been here a lot. */
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(ellipse 380px 220px at 88% 18%, rgb(120 120 120 / 4%), transparent 70%),
+    radial-gradient(ellipse 300px 260px at 6% 72%, rgb(120 120 120 / 4%), transparent 70%),
+    radial-gradient(circle at 1px 1px, var(--dot) 1.1px, transparent 1.4px);
+  background-size: 100% 100%, 100% 100%, 22px 22px;
+  background-attachment: scroll, scroll, scroll;
+}
+img { max-width: 100%; height: auto; display: block; }
+a { color: inherit; text-decoration-color: var(--blue); text-underline-offset: 3px; text-decoration-thickness: 2px; }
+a:hover { color: var(--blue); }
+:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; border-radius: 2px; }
+::selection { background: var(--yellow); color: #141414; }
+
+h1, h2, h3 { font-family: var(--display); font-weight: 700; line-height: 1.08; letter-spacing: -0.025em; margin: 0 0 0.5em; }
+h1 { font-size: clamp(2.4rem, 6vw, 4.2rem); font-weight: 800; }
+h2 { font-size: clamp(1.6rem, 3.2vw, 2.2rem); }
+h3 { font-size: 1.3rem; letter-spacing: -0.015em; }
+p { margin: 0 0 1.1em; }
+
+.wrap { width: min(100% - 32px, var(--wide)); margin-inline: auto; }
+.narrow { width: min(100% - 32px, var(--measure)); margin-inline: auto; }
+.muted { color: var(--ink-2); }
+
+/* Handwritten margin notes */
+.hand { font-family: var(--hand); font-weight: 400; font-size: 1.55rem; line-height: 1.1; letter-spacing: 0; }
+.eyebrow { font: 400 1.75rem/1 var(--hand); color: var(--red); margin-bottom: 0.6rem; display: inline-block; transform: rotate(-2deg); }
+
+/* Marker highlight: a slightly uneven swipe of yellow behind the text */
+.mark {
+  background: linear-gradient(100deg, transparent 0.6%, var(--yellow) 1.5%, var(--yellow) 97%, transparent 99%);
+  background-size: 100% 62%;
+  background-position: 0 88%;
+  background-repeat: no-repeat;
+  padding: 0 0.12em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+@media (prefers-color-scheme: dark) { .mark { color: #141414; background-size: 100% 100%; background-position: 0 0; } }
+/* Hand-drawn underline in a marker colour */
+.scribble {
+  text-decoration: none;
+  background: no-repeat 0 100% / 100% 0.35em
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'%3E%3Cpath d='M2 8 C 30 3, 60 10, 95 6 S 160 2, 198 7' fill='none' stroke='%23d62a1e' stroke-width='3.2' stroke-linecap='round'/%3E%3C/svg%3E");
+  padding-bottom: 0.12em;
+}
+.scribble.blue { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'%3E%3Cpath d='M2 8 C 30 3, 60 10, 95 6 S 160 2, 198 7' fill='none' stroke='%231f4fbf' stroke-width='3.2' stroke-linecap='round'/%3E%3C/svg%3E"); }
+
+/* Buttons: soft marker-coloured pills */
+.btn {
+  display: inline-flex; align-items: center; gap: 0.5em;
+  padding: 0.75em 1.4em; border-radius: 999px;
+  background: var(--yellow); color: #141414;
+  font-weight: 650; text-decoration: none; border: 0;
+  box-shadow: 0 2px 0 rgb(0 0 0 / 12%), 0 8px 18px -8px rgb(0 0 0 / 35%);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.btn:hover { color: #141414; transform: translateY(-2px) rotate(-0.6deg); box-shadow: 0 3px 0 rgb(0 0 0 / 12%), 0 14px 24px -10px rgb(0 0 0 / 40%); }
+.btn:active { transform: translateY(1px); }
+.btn.blue { background: var(--blue); color: #fff; }
+.btn.red { background: var(--red); color: #fff; }
+.btn.ghost { background: var(--paper); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink), 0 8px 18px -12px rgb(0 0 0 / 30%); }
+
+section { padding-block: clamp(2.75rem, 7vw, 5rem); }
+.section-head { display: flex; justify-content: space-between; align-items: end; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.75rem; }
+.section-head h2 { margin: 0; }
+.section-head .hand { color: var(--ink-2); }
+
+.grid { display: grid; gap: 1.75rem; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+
+/* A page torn out and taped down: soft edges, real depth */
+.card {
+  position: relative;
+  background: var(--paper);
+  border-radius: var(--radius);
+  padding: 1.7rem 1.5rem 1.4rem;
+  box-shadow: var(--shadow-soft);
+  border-top: 5px solid var(--accent, var(--blue));
+}
+.taped::before {
+  content: '';
+  position: absolute; top: -13px; left: 50%;
+  width: 92px; height: 26px;
+  transform: translateX(-50%) rotate(var(--tilt, -3deg));
+  background: var(--tape-color, var(--tape));
+  border-left: 1px dashed rgb(0 0 0 / 8%);
+  border-right: 1px dashed rgb(0 0 0 / 8%);
+}
+.tag {
+  display: inline-block; font-size: 0.78rem; font-weight: 600;
+  padding: 0.18em 0.7em; border-radius: 999px;
+  margin: 0 0.35em 0.4em 0; background: var(--soft, var(--paper-2)); color: var(--ink);
+}
+
+/* Colour key. Each section of the notebook has its own marker. */
+.c-blue { --accent: var(--blue); --soft: var(--blue-soft); }
+.c-red { --accent: var(--red); --soft: var(--red-soft); }
+.c-yellow { --accent: var(--yellow); --soft: var(--yellow-soft); }
+
+/* Long-form writing: a notebook page with a red margin rule */
+.prose { font-size: 1.125rem; }
+.prose h2 { margin-top: 2.2em; }
+.prose h2::before { content: '§ '; color: var(--red); font-weight: 500; }
+.prose h3 { margin-top: 1.8em; }
+.prose ul { list-style: none; padding-left: 1.4em; margin: 0 0 1.1em; }
+.prose ul > li { position: relative; margin-bottom: 0.45em; }
+.prose ul > li::before { content: ''; position: absolute; left: -1.05em; top: 0.68em; width: 7px; height: 7px; border-radius: 50%; background: var(--ink); }
+.prose ol { padding-left: 1.4em; margin: 0 0 1.1em; }
+.prose ol > li::marker { font-family: var(--hand); font-weight: 400; font-size: 1.3em; color: var(--blue); }
+.prose li { margin-bottom: 0.45em; }
+.prose strong { background: linear-gradient(transparent 62%, var(--yellow-soft) 62%); }
+.prose blockquote { margin: 1.6em 0; padding: 0.4em 0 0.4em 1.2em; border-left: 5px solid var(--yellow); font-family: var(--hand); font-size: 1.6em; line-height: 1.25; color: var(--ink); }
+.prose code { font-family: var(--mono); font-size: 0.86em; background: var(--paper-2); padding: 0.12em 0.4em; border-radius: 4px; border: 1px solid var(--rule); }
+.prose pre { padding: 1.1em 1.2em; border-radius: var(--radius); overflow-x: auto; font-size: 0.88rem; box-shadow: var(--shadow-soft); }
+.prose pre code { background: none; padding: 0; border: 0; }
+.prose table { border-collapse: collapse; width: 100%; margin-bottom: 1.2em; font-size: 0.95em; display: block; overflow-x: auto; }
+.prose th { text-align: left; border-bottom: 2.5px solid var(--blue); padding: 0.5em 0.7em; }
+.prose td { border-bottom: 1px solid var(--rule); padding: 0.5em 0.7em; }
+.prose img { border-radius: var(--radius); box-shadow: var(--shadow-soft); margin: 1.5em 0; }
+.prose a { text-decoration-color: var(--red); }
+
+@media (prefers-color-scheme: dark) {
+  .astro-code, .astro-code span { color: var(--shiki-dark) !important; background-color: var(--shiki-dark-bg) !important; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* ---------- Sticky notes: flat paper, soft corners ---------- */
+.sticky {
+  --s: var(--sticky-y);
+  position: relative;
+  display: block;
+  color: #1a1a1a;
+  text-decoration: none;
+  padding: 1.15rem 1.2rem 1.3rem;
+  border-radius: 14px;
+  background: var(--s);
+  box-shadow: 0 10px 24px -14px rgb(20 20 20 / 28%);
+  transform: rotate(var(--rot, -1.5deg));
+  transition: transform 0.25s cubic-bezier(.2,.8,.3,1.2), box-shadow 0.25s ease;
+}
+a.sticky:hover { color: #1a1a1a; transform: rotate(0deg) translateY(-4px); box-shadow: 0 16px 28px -14px rgb(20 20 20 / 32%); }
+.sticky.b { --s: var(--sticky-b); }
+.sticky.r { --s: var(--sticky-r); }
+
+/* Wavy hand-drawn rule */
+.wave {
+  height: 14px; border: 0; margin: 0;
+  background: repeat-x 0 50% / 120px 14px
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 14'%3E%3Cpath d='M0 7 Q 15 1 30 7 T 60 7 T 90 7 T 120 7' fill='none' stroke='%231f4fbf' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+/* Code highlighted at build time for CMS content (Shiki dual theme) */
+.prose .shiki { padding: 1.1em 1.2em; border-radius: var(--radius); overflow-x: auto; font-size: 0.88rem; box-shadow: var(--shadow-soft); }
+@media (prefers-color-scheme: dark) {
+  .shiki, .shiki span { color: var(--shiki-dark) !important; background-color: var(--shiki-dark-bg) !important; }
+}
+.prose figure { margin: 1.8em 0; }
+.prose figcaption { font-family: var(--hand); font-size: 1.3rem; color: var(--ink-2); text-align: center; margin-top: 0.4rem; }

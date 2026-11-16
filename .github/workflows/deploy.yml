@@ -1,0 +1,73 @@
+# CI/CD: every push builds the site; pushes to main also deploy it to AWS.
+name: Build and deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  # Fired by a Sanity webhook whenever a note or project is published,
+  # so new content goes live without touching the code.
+  repository_dispatch:
+    types: [sanity-publish]
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+        # Posts and projects are pulled from Sanity (project j76vr3np) during this build.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          retention-days: 7
+
+  deploy:
+    needs: build
+    # Only deploy from main, and only once the AWS stacks exist and the three
+    # repo variables are set (Settings → Secrets and variables → Actions → Variables).
+    if: github.ref == 'refs/heads/main' && vars.AWS_ROLE_ARN != ''
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # lets the job request an OIDC token to swap for AWS credentials
+      contents: read
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      # Fingerprinted assets (CSS/JS/fonts in _astro/) never change name-for-content,
+      # so browsers can cache them for a year. HTML must always be revalidated.
+      - name: Upload hashed assets (long cache)
+        run: |
+          aws s3 sync dist/_astro "s3://${{ vars.S3_BUCKET }}/_astro" \
+            --cache-control "public, max-age=31536000, immutable"
+
+      - name: Upload everything else (short cache) and remove deleted files
+        run: |
+          aws s3 sync dist "s3://${{ vars.S3_BUCKET }}" --delete \
+            --exclude "_astro/*" \
+            --cache-control "public, max-age=0, must-revalidate"
+
+      - name: Clear the CDN cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}" \
+            --paths "/*"
