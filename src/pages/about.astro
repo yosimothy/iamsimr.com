@@ -1,28 +1,49 @@
 ---
 import Base from '../layouts/Base.astro';
 import { SITE } from '../site.config';
+import { getProfile, imageUrl } from '../lib/sanity';
+
+// Photo, bio and "now" list come from the Profile page in Sanity Studio.
+// Anything left empty there falls back to the placeholder text below.
+const profile = await getProfile();
+const name = SITE.name;
+const photo = profile.headshot;
 ---
 <Base title="About" description={`About ${SITE.name}.`}>
   <section class="wrap about">
-    <div class="photo taped" aria-hidden="true">
-      <!-- TODO: replace with your headshot: put it in public/headshot.jpg and swap this div for
-           <img src="/headshot.jpg" alt="Sim smiling at the camera" width="480" height="600" /> -->
-      <div class="frame"><span>{SITE.name.charAt(0)}</span></div>
-      <p class="hand">me, probably mid-project</p>
-    </div>
+    <figure class="photo taped" aria-hidden={photo ? undefined : 'true'}>
+      {photo ? (
+        <img
+          class="frame"
+          src={imageUrl(photo, 640, 800)}
+          srcset={`${imageUrl(photo, 320, 400)} 320w, ${imageUrl(photo, 640, 800)} 640w, ${imageUrl(photo, 960, 1200)} 960w`}
+          sizes="(max-width: 760px) 240px, 320px"
+          alt={photo.alt ?? `Photo of ${name}`}
+          width="640"
+          height="800"
+        />
+      ) : (
+        <div class="frame"><span>{name.charAt(0)}</span></div>
+      )}
+      <figcaption class="hand">{profile.photoCaption ?? 'me, probably mid-project'}</figcaption>
+    </figure>
     <div class="prose">
       <p class="eyebrow">about me</p>
-      <h1>Hi, I'm {SITE.name}.</h1>
-      <!-- TODO: rewrite in your own voice. Three short paragraphs works well:
-           who you are, what you do/care about, what you're up to now. -->
+      <h1>Hi, I'm {name}.</h1>
+      {profile.bioHtml ? <Fragment set:html={profile.bioHtml} /> : (
+        <>
       <p>I'm a developer who likes building things that feel calm and fast to use. I care about clean design, readable code, and understanding how the whole stack fits together, from the HTML in your browser down to the servers that deliver it.</p>
       <p>Outside of work I spend my time on a rotating cast of hobbies, which I write about in my <a href="/blog/">notes</a>. I built this site from scratch and deployed it on AWS partly to learn how that whole pipeline works, and I wrote up <a href="/blog/how-this-site-is-built/">how it's put together</a>.</p>
+        </>
+      )}
       <h2>What I'm doing now</h2>
+      {profile.now?.length ? <ul>{profile.now.map((n) => <li>{n}</li>)}</ul> : (
       <ul>
         <li>Building this site and writing regularly.</li>
         <li>Taking on freelance web projects.</li>
         <li>Learning more about cloud infrastructure on AWS.</li>
       </ul>
+      )}
       <h2>Get in touch</h2>
       <p>The best way to reach me is email: <a href={`mailto:${SITE.email}`}>{SITE.email}</a>. You can also find me on {SITE.socials.map((s, i) => <>{i > 0 && ' and '}<a href={s.href}>{s.label}</a></>)}.</p>
     </div>
@@ -32,7 +53,8 @@ import { SITE } from '../site.config';
   .about { position: relative; display: grid; grid-template-columns: minmax(0, 320px) minmax(0, var(--measure)); gap: clamp(2rem, 6vw, 4.5rem); align-items: start; }
   /* A polaroid taped into the notebook */
   .photo { position: sticky; top: 2rem; background: #fff; padding: 12px 12px 0; border-radius: 3px; box-shadow: 0 1px 2px rgb(0 0 0 / 8%), 0 14px 30px -10px rgb(0 0 0 / 28%); transform: rotate(-2deg); }
-  .frame { aspect-ratio: 4 / 5; display: grid; place-items: center; background: var(--paper-2); border-radius: 2px; }
+  .photo { margin: 0; }
+  .frame { width: 100%; height: auto; object-fit: cover; aspect-ratio: 4 / 5; display: grid; place-items: center; background: var(--paper-2); border-radius: 2px; }
   .frame span { font: 800 6rem/1 var(--display); color: var(--ink-3); }
     .photo .hand { color: #333; text-align: center; margin: 0.5rem 0 0.6rem; font-size: 1.4rem; }
   @media (max-width: 760px) { .about { grid-template-columns: 1fr; } .photo { position: static; max-width: 240px; } }

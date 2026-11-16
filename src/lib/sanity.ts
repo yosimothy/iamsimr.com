@@ -84,6 +84,26 @@ function plainText(blocks: Block[] = []) {
 // Pull image URLs alongside the body so the renderer doesn't need extra lookups.
 const BODY = `body[]{..., _type == "image" => {..., "url": asset->url}}`;
 
+// An image with its URL, alt text and chosen focus point (hotspot).
+const IMAGE = `{ "url": asset->url, alt, hotspot }`;
+
+export type SanityImage = { url: string; alt?: string; hotspot?: { x: number; y: number } };
+
+/** A resized, cropped URL from Sanity's image CDN, centred on the hotspot. */
+export function imageUrl(img: SanityImage, w: number, h?: number) {
+  const p = new URLSearchParams({ w: String(w), auto: 'format', q: '80' });
+  if (h) {
+    p.set('h', String(h));
+    p.set('fit', 'crop');
+    if (img.hotspot) {
+      p.set('crop', 'focalpoint');
+      p.set('fp-x', img.hotspot.x.toFixed(3));
+      p.set('fp-y', img.hotspot.y.toFixed(3));
+    }
+  }
+  return `${img.url}?${p}`;
+}
+
 const QUERIES = {
   post: `*[_type == "post" && defined(slug.current)]{
     "id": slug.current, title, description,
@@ -92,7 +112,7 @@ const QUERIES = {
   }`,
   project: `*[_type == "project" && defined(slug.current)]{
     "id": slug.current, title, summary, role,
-    "stack": coalesce(stack, []), link, repo,
+    "stack": coalesce(stack, []), link, repo, "cover": select(defined(cover.asset) => cover${IMAGE}),
     "order": coalesce(order, 100), "featured": coalesce(featured, false), ${BODY}
   }`,
 };
@@ -113,4 +133,31 @@ export function sanityLoader(type: keyof typeof QUERIES): Loader {
       }
     },
   };
+}
+
+export type Profile = {
+  name?: string;
+  headshot?: SanityImage;
+  photoCaption?: string;
+  bioHtml?: string;
+  now?: string[];
+  availability?: string;
+  linkedin?: string;
+};
+
+let profileCache: Promise<Profile> | undefined;
+/** The single Profile document (photo, bio, now list). Empty when Sanity is off or unset. */
+export function getProfile(): Promise<Profile> {
+  if (!useSanity) return Promise.resolve({});
+  profileCache ??= client()
+    .fetch(`*[_id == "profile"][0]{ name, "headshot": headshot${IMAGE}, photoCaption, ${BODY.replace('body[]', 'bio[]')}, now, availability, linkedin }`)
+    .then(async (doc: any) => {
+      if (!doc) return {};
+      const out = Object.fromEntries(Object.entries(doc).filter(([, v]) => v !== null)) as any;
+      if (out.headshot && !out.headshot.url) delete out.headshot;
+      if (out.bio?.length) out.bioHtml = await renderBody(out.bio);
+      delete out.bio;
+      return out as Profile;
+    });
+  return profileCache;
 }

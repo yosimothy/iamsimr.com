@@ -34,6 +34,9 @@ const projects = defineCollection({
     repo: z.string().url().optional(),
     order: z.number().default(100),
     featured: z.boolean().default(false),
+    cover: z
+      .object({ url: z.string().url(), alt: z.string().nullish(), hotspot: z.object({ x: z.number(), y: z.number() }).nullish() })
+      .optional(),
   }),
 });
 

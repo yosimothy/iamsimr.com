@@ -8,6 +8,14 @@ export const project = defineType({
     defineField({ name: 'title', type: 'string', validation: (r) => r.required() }),
     defineField({ name: 'slug', type: 'slug', title: 'URL slug', options: { source: 'title', maxLength: 80 }, validation: (r) => r.required() }),
     defineField({ name: 'summary', type: 'text', rows: 2, description: 'One sentence: the problem and the result.', validation: (r) => r.required().max(220) }),
+    defineField({
+      name: 'cover',
+      type: 'image',
+      title: 'Cover image',
+      description: 'A screenshot or photo. Shown on the project card and at the top of the write-up.',
+      options: { hotspot: true },
+      fields: [defineField({ name: 'alt', type: 'string', title: 'Describe the image (for screen readers)' })],
+    }),
     defineField({ name: 'role', type: 'string', description: 'e.g. Freelance, Side project, Design & development' }),
     defineField({ name: 'stack', type: 'array', of: [{ type: 'string' }], options: { layout: 'tags' } }),
     defineField({ name: 'link', type: 'url', title: 'Live URL' }),
@@ -17,5 +25,5 @@ export const project = defineType({
     defineField({ name: 'body', type: 'body', title: 'Write-up' }),
   ],
   orderings: [{ title: 'Display order', name: 'order', by: [{ field: 'order', direction: 'asc' }] }],
-  preview: { select: { title: 'title', subtitle: 'role' } },
+  preview: { select: { title: 'title', subtitle: 'role', media: 'cover' } },
 });

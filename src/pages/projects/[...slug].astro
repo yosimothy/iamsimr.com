@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
+import { imageUrl } from '../../lib/sanity';
 
 export async function getStaticPaths() {
   const projects = await getCollection('projects');
@@ -8,7 +9,7 @@ export async function getStaticPaths() {
 }
 const { project } = Astro.props;
 const { Content } = await render(project);
-const { title, summary, stack, link, repo, role } = project.data;
+const { title, summary, stack, link, repo, role, cover } = project.data;
 ---
 <Base title={title} description={summary} type="article">
   <article class="narrow">
@@ -19,6 +20,11 @@ const { title, summary, stack, link, repo, role } = project.data;
       <div>{stack.map((s) => <span class="tag">{s}</span>)}</div>
       <p class="links">{link && <a class="btn red" href={link}>Visit ↗</a>}{repo && <a class="btn ghost" href={repo}>Source ↗</a>}</p>
     </header>
+    {cover && (
+      <figure class="cover">
+        <img src={imageUrl(cover, 1400)} srcset={`${imageUrl(cover, 700)} 700w, ${imageUrl(cover, 1400)} 1400w`} sizes="(max-width: 760px) 100vw, 720px" alt={cover.alt ?? ''} />
+      </figure>
+    )}
     <div class="prose"><Content /></div>
     <p><a href="/projects/">← All projects</a></p>
   </article>
@@ -26,6 +32,8 @@ const { title, summary, stack, link, repo, role } = project.data;
 <style>
   article { padding-block: clamp(2rem, 6vw, 4rem); }
   header { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 0; background: no-repeat 0 100% / 100% 12px url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 12' preserveAspectRatio='none'%3E%3Cpath d='M2 7 Q 30 1 60 7 T 120 7 T 180 7 T 240 7 T 300 7 T 360 7 T 398 7' fill='none' stroke='%231f4fbf' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E"); }
+  .cover { margin: 0 0 2.5rem; }
+  .cover img { display: block; width: 100%; height: auto; border-radius: var(--radius); box-shadow: 0 10px 24px -14px rgb(20 20 20 / 28%); }
   .dek { font-size: 1.25rem; }
   .links { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 1.2rem; }
   .links:empty { display: none; }
