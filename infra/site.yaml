@@ -28,6 +28,14 @@ Parameters:
       An AWS account can only have one GitHub OIDC provider. Leave 'true' unless
       you have already created one for another project.
 
+  EnableAliases:
+    Type: String
+    AllowedValues: ['true', 'false']
+    Default: 'true'
+    Description: >
+      Attach the domain names to CloudFront. Set 'false' for a first deploy when
+      another (old) distribution still claims them, move them over with
+      `aws cloudfront associate-alias`, then update the stack with 'true'.
   EnableGitHubDeploy:
     Type: String
     AllowedValues: ['true', 'false']
@@ -44,6 +52,7 @@ Parameters:
       the domain and www. Leave empty to create one (stack must be in us-east-1).
 
 Conditions:
+  Aliases: !Equals [!Ref EnableAliases, 'true']
   GitHubDeploy: !Equals [!Ref EnableGitHubDeploy, 'true']
   CreateOIDC: !And
     - !Condition GitHubDeploy
@@ -167,7 +176,7 @@ Resources:
       DistributionConfig:
         Enabled: true
         Comment: !Ref DomainName
-        Aliases: [!Ref DomainName, !Sub 'www.${DomainName}']
+        Aliases: !If [Aliases, [!Ref DomainName, !Sub 'www.${DomainName}'], !Ref AWS::NoValue]
         DefaultRootObject: index.html
         HttpVersion: http2and3
         IPV6Enabled: true
