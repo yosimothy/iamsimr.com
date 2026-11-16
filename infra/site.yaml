@@ -28,6 +28,14 @@ Parameters:
       An AWS account can only have one GitHub OIDC provider. Leave 'true' unless
       you have already created one for another project.
 
+  EnableGitHubDeploy:
+    Type: String
+    AllowedValues: ['true', 'false']
+    Default: 'true'
+    Description: >
+      Create the GitHub OIDC deploy role. Set 'false' where IAM OIDC providers
+      are blocked (e.g. AWS free-plan Projects accounts); deploy with
+      `aws s3 sync` + an invalidation instead.
   CertificateArn:
     Type: String
     Default: ''
@@ -36,7 +44,10 @@ Parameters:
       the domain and www. Leave empty to create one (stack must be in us-east-1).
 
 Conditions:
-  CreateOIDC: !Equals [!Ref CreateGitHubOIDCProvider, 'true']
+  GitHubDeploy: !Equals [!Ref EnableGitHubDeploy, 'true']
+  CreateOIDC: !And
+    - !Condition GitHubDeploy
+    - !Equals [!Ref CreateGitHubOIDCProvider, 'true']
   CreateCert: !Equals [!Ref CertificateArn, '']
 
 Resources:
@@ -236,6 +247,7 @@ Resources:
 
   DeployRole:
     Type: AWS::IAM::Role
+    Condition: GitHubDeploy
     Properties:
       Description: Assumed by GitHub Actions to upload the site and clear the CDN cache.
       MaxSessionDuration: 3600
@@ -274,6 +286,7 @@ Outputs:
     Description: GitHub repo variable CLOUDFRONT_DISTRIBUTION_ID
     Value: !Ref Distribution
   DeployRoleArn:
+    Condition: GitHubDeploy
     Description: GitHub repo variable AWS_ROLE_ARN
     Value: !GetAtt DeployRole.Arn
   CloudFrontDomain:
