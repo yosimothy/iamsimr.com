@@ -18,7 +18,7 @@ const year = new Date().getFullYear();
         <span class="lamp-note hand" aria-live="polite"></span>
       </p>
       <p class="muted">Built with Astro, hosted on AWS. <a href="/blog/how-this-site-is-built/">Here's how</a>.</p>
-      <p class="hand muted">thanks for reading ✎</p>
+      <p class="hand muted">thanks for reading <span class="peace-hand" role="img" aria-label="peace sign">✌️</span></p>
     </div>
     <ul>
       <li><a href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
@@ -35,7 +35,7 @@ const year = new Date().getFullYear();
   btn?.addEventListener('click', () => {
     const next = (window as any).__flipTheme?.();
     if (!note || !next) return;
-    note.textContent = next === 'dark' ? 'lights off ✎' : 'lights on ✎';
+    note.textContent = next === 'dark' ? 'lights off 🌙' : 'lights on ☀️';
     note.classList.add('show');
     clearTimeout(t);
     t = window.setTimeout(() => note.classList.remove('show'), 1800);
