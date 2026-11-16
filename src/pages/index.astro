@@ -18,8 +18,8 @@ const projects = allProjects
 <Base>
   <section class="hero wrap">
     <div class="intro">
-      <p class="eyebrow"><span class="me" aria-hidden="true"><img src="/sim-sketch.svg" alt="" width="626" height="674" /></span>hi, I'm {SITE.name} <span class="hi-hand" role="img" aria-label="waving hand">👋</span><br /><span class="shares">this website shares:</span></p>
-      <h1>Things I'm <span class="mark">learning</span>, making, and <span class="squig">occasionally</span> getting wrong.</h1>
+      <p class="eyebrow"><span class="me" aria-hidden="true"><span class="paper"><img src="/sim-sketch.svg" alt="" width="626" height="674" /></span></span>hi, I'm {SITE.name} <span class="hi-hand" role="img" aria-label="waving hand">👋</span><br /><span class="shares">this website shares:</span></p>
+      <h1>Things I'm <span class="mark">learning</span>, making, and <span class="uline">occasionally<svg viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true"><path d="M3 8 C 40 4, 80 9, 120 6 S 175 4, 197 6" pathLength="1" /></svg></span> getting wrong.</h1>
       <p class="lede">
         You'll find my notes on the web and AI, on whichever hobby has my attention this month, and on the projects that come out of both.
         Some entries are polished, most are works in progress. Have a flip through.
@@ -96,20 +96,34 @@ const projects = allProjects
     mask-image: radial-gradient(closest-side, #000 75%, transparent); }
   .hero h1 { max-width: 15ch; }
   .eyebrow .shares { color: var(--ink-2); }
-  /* Hand-drawn marker squiggle under "occasionally". */
-  .squig { position: relative; white-space: nowrap; isolation: isolate; }
-  .squig::after { content: ''; position: absolute; left: -0.04em; right: -0.06em; bottom: -0.13em; height: 0.24em; background: var(--blue); -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 12'%3E%3Cpath d='M-6 6q6-6.5 12 0t12 0 12 0' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") repeat-x 0 50% / 0.5em 100%; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 12'%3E%3Cpath d='M-6 6q6-6.5 12 0t12 0 12 0' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") repeat-x 0 50% / 0.5em 100%; transform: rotate(-1.2deg); z-index: -1; }
   /* Sketch of Sim: sits on the page beside the greeting, behind the text. */
   .eyebrow { position: relative; }
   .me { position: absolute; z-index: -1; width: 170px; height: auto; left: calc(100% + 80px); top: 14px; transform: rotate(9deg); pointer-events: none; user-select: none; }
   .me img { display: block; width: 100%; height: auto; }
   /* Dark mode: the sketch is a white sticky note taped to the page. */
-  :global(:root[data-theme='dark']) .me { background: #f6f4ee; border-radius: 6px; padding: 10px 10px 0; box-shadow: 0 6px 18px rgb(0 0 0 / 0.35); }
-  :global(:root[data-theme='dark']) .me::before { content: ''; position: absolute; top: -9px; left: 50%; width: 58px; height: 20px; margin-left: -29px; background: rgb(255 241 191 / 0.55); transform: rotate(-4deg); border-radius: 2px; }
-  @media (max-width: 560px) {
+  /* Dark mode: a torn-out notebook page taped to the board, flapping slightly. */
+  :global(:root[data-theme='dark']) .me { filter: drop-shadow(0 5px 10px rgb(0 0 0 / 0.4)); }
+  :global(:root[data-theme='dark']) .paper { display: block; background: #f6f4ee; padding: 10px 10px 14px; clip-path: polygon(0% 1.5%, 30% 0.4%, 62% 1.2%, 100% 0%, 99.4% 40%, 100% 78%, 96.5% 91.3%, 92.1% 90.6%, 88.0% 93.1%, 85.3% 94.3%, 82.7% 93.7%, 80.0% 90.8%, 76.2% 97.0%, 73.3% 91.9%, 68.9% 98.1%, 64.7% 93.4%, 59.3% 90.4%, 54.2% 92.5%, 51.3% 91.0%, 47.9% 96.9%, 44.8% 94.9%, 40.4% 93.2%, 36.2% 90.5%, 33.6% 91.8%, 29.0% 93.6%, 25.6% 95.0%, 21.7% 92.5%, 16.8% 95.9%, 13.6% 94.9%, 9.5% 97.4%, 4.8% 92.4%, 0.0% 91.0%, 0.6% 60%); transform-origin: 50% 0; animation: flap 5s ease-in-out infinite; }
+  :global(:root[data-theme='dark']) .me::before { content: ''; position: absolute; z-index: 1; top: -9px; left: 50%; width: 58px; height: 20px; margin-left: -29px; background: rgb(255 241 191 / 0.6); transform: rotate(-4deg); border-radius: 2px; }
+  @keyframes flap { 0%, 100% { transform: perspective(500px) rotateX(0deg) rotate(0deg); } 45% { transform: perspective(500px) rotateX(9deg) rotate(-1.2deg); } 60% { transform: perspective(500px) rotateX(5deg) rotate(-0.6deg); } }
+  /* Hand-drawn underline that draws itself in, then the highlight sweeps across. */
+  .uline { position: relative; white-space: nowrap; }
+  .uline svg { position: absolute; left: 0; bottom: -0.12em; width: 100%; height: 0.22em; overflow: visible; pointer-events: none; }
+  .uline path { fill: none; stroke: var(--blue); stroke-linecap: round; stroke-width: 3.6; stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 0.7s 0.35s cubic-bezier(.6,.1,.3,1) forwards; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  h1 .mark { animation: sweep 0.6s 1.05s cubic-bezier(.6,.1,.3,1) both; }
+  @keyframes sweep { from { background-size: 0% 62%; } }
+  :global(:root[data-theme='dark']) h1 .mark { animation-name: sweep-dark; }
+  @keyframes sweep-dark { from { background-size: 0% 100%; } }
+  @media (prefers-reduced-motion: reduce) {
+    .uline path { animation: none; stroke-dashoffset: 0; }
+    h1 .mark, :global(:root[data-theme='dark']) .paper { animation: none; }
+  }
+  @media (max-width: 860px) {
     .eyebrow { padding: 34px 0 0 92px; }
     .me { width: 92px; left: -6px; top: auto; bottom: -6px; transform: rotate(-5deg); transform-origin: 50% 100%; }
-    :global(:root[data-theme='dark']) .me { padding: 5px 5px 0; bottom: 0; }
+    :global(:root[data-theme='dark']) .me { bottom: -2px; }
+    :global(:root[data-theme='dark']) .paper { padding: 5px 5px 8px; }
     :global(:root[data-theme='dark']) .me::before { width: 38px; height: 13px; margin-left: -19px; top: -6px; }
   }
   .lede { font-size: 1.18rem; max-width: 50ch; color: var(--ink-2); }
