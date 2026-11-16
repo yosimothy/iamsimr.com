@@ -51,13 +51,13 @@ const projects = allProjects
       <h2 class="squig b">Latest entries</h2>
       <a href="/blog/" class="hand">all notes →</a>
     </div>
-    <PostList posts={posts} />
     <dl class="key" aria-label="How this notebook is colour-coded">
       <dt class="hand">key</dt>
       <div><dd><i class="sw b"></i>notes &amp; learnings</dd></div>
       <div><dd><i class="sw r"></i>projects</dd></div>
       <div><dd><i class="sw y"></i>work with me</dd></div>
     </dl>
+    <PostList posts={posts} />
   </section>
 
   {projects.length > 0 && (
@@ -97,7 +97,7 @@ const projects = allProjects
     mask-image: radial-gradient(closest-side, #000 75%, transparent); }
   .hero h1 { max-width: 15ch; }
   .lede { font-size: 1.18rem; max-width: 50ch; color: var(--ink-2); }
-  .key { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 1.2rem; margin: 1.6rem 0 0; padding: 0.55rem 1.1rem; border-radius: 999px; background: var(--paper); box-shadow: var(--shadow-soft); width: fit-content; font-size: 0.92rem; }
+  .key { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 1.2rem; margin: -0.4rem 0 1.4rem; padding: 0.55rem 1.1rem; border-radius: 999px; background: var(--paper); box-shadow: var(--shadow-soft); width: fit-content; font-size: 0.92rem; }
   .key dt { color: var(--red); font-size: 1.45rem; margin-right: 0.2rem; }
   .key dd { margin: 0; display: flex; align-items: center; gap: 0.45rem; }
   .sw { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
