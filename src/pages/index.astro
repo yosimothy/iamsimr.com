@@ -4,6 +4,7 @@ import Base from '../layouts/Base.astro';
 import PostList from '../components/PostList.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import BujoMark from '../components/BujoMark.astro';
+import Lately from '../components/Lately.astro';
 import { getPosts } from '../lib/posts';
 import { SITE } from '../site.config';
 
@@ -25,24 +26,7 @@ const projects = allProjects
         Some entries are polished, most are works in progress. Have a flip through.
       </p>
     </div>
-    <nav class="board" aria-label="Sections of this notebook">
-      <a class="sticky b n1" href="/blog/" style="--rot:-3deg">
-        <span class="k">Notes &amp; learnings</span>
-        <span class="n hand">{allPosts.length} {allPosts.length === 1 ? 'entry' : 'entries'} so far →</span>
-      </a>
-      <a class="sticky r n2" href="/projects/" style="--rot:4deg">
-        <span class="k">Projects</span>
-        <span class="n hand">{allProjects.length} on the desk →</span>
-      </a>
-      <a class="sticky n3" href="/work-with-me/" style="--rot:2deg">
-        <span class="k">Work with me</span>
-        <span class="n hand">say hi →</span>
-      </a>
-      <a class="sticky w n4" href="/about/" style="--rot:-5deg">
-        <span class="k">About</span>
-        <span class="n hand">who's this? →</span>
-      </a>
-    </nav>
+    <Lately />
   </section>
 
   <section class="wrap sk">
@@ -141,16 +125,8 @@ const projects = allProjects
   .sw { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
   .sw.b { background: var(--blue); } .sw.r { background: var(--red); } .sw.y { background: var(--yellow); }
 
-  /* The sticky-note board */
-  .board { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 1.6rem 1.4rem; padding: 2rem 1rem 2.5rem; }
-  .board .sticky { min-height: 150px; display: flex; flex-direction: column; justify-content: space-between; }
-  .board .k { font: 750 1.35rem/1.1 var(--display); letter-spacing: -0.02em; }
-  .board .n { font-size: 1.3rem; color: #333; }
-  .n1 { margin-top: 1rem; } .n2 { margin-top: -0.5rem; margin-left: 0.6rem; }
-  .n3 { margin-right: 0.8rem; } .n4 { margin-top: 1.2rem; min-height: 120px !important; }
-  .sticky.w { --s: #efeee8; }
   .sk { position: relative; }
-  .board .sticky, .section-head, :global(.log), .grid, .ps { position: relative; z-index: 1; }
+  .section-head, :global(.log), .grid, .ps { position: relative; z-index: 1; }
 
   .squig { display: inline-block; padding-bottom: 0.25rem; background: no-repeat 0 100% / 100% 10px url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 10' preserveAspectRatio='none'%3E%3Cpath d='M2 6 Q 25 1 50 6 T 100 6 T 150 6 T 198 6' fill='none' stroke='%231f4fbf' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E"); }
   .squig.r { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 10' preserveAspectRatio='none'%3E%3Cpath d='M2 6 Q 25 1 50 6 T 100 6 T 150 6 T 198 6' fill='none' stroke='%23d62a1e' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E"); }
@@ -166,9 +142,5 @@ const projects = allProjects
 
   @media (max-width: 860px) {
     .hero { grid-template-columns: 1fr; }
-    .board { max-width: 480px; }
-  }
-  @media (max-width: 480px) {
-    .board .k { font-size: 1.1rem; } .board .n { font-size: 1.1rem; }
   }
 </style>

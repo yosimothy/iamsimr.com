@@ -148,6 +148,9 @@ export type Profile = {
   photoCaption?: string;
   bioHtml?: string;
   now?: string[];
+  lately?: { kind?: string; verb: string; text: string }[];
+  onRotation?: { kind: 'reading' | 'listening' | 'playing' | 'watching'; title: string; by?: string; note?: string; link?: string }[];
+  latelyUpdated?: string;
   availability?: string;
   linkedin?: string;
 };
@@ -157,7 +160,7 @@ let profileCache: Promise<Profile> | undefined;
 export function getProfile(): Promise<Profile> {
   if (!useSanity) return Promise.resolve({});
   profileCache ??= client()
-    .fetch(`*[_id == "profile"][0]{ name, "headshot": headshot${IMAGE}, photoCaption, ${BODY.replace('body[]', 'bio[]')}, now, availability, linkedin }`)
+    .fetch(`*[_id == "profile"][0]{ name, "headshot": headshot${IMAGE}, photoCaption, ${BODY.replace('body[]', 'bio[]')}, now, lately[]{ kind, verb, text }, onRotation[]{ kind, title, by, note, link }, latelyUpdated, availability, linkedin }`)
     .then(async (doc: any) => {
       if (!doc) return {};
       const out = Object.fromEntries(Object.entries(doc).filter(([, v]) => v !== null)) as any;
