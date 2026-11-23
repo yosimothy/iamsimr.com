@@ -295,7 +295,7 @@ a.sticky:hover { color: #1a1a1a; transform: rotate(0deg) translateY(-4px); box-s
 .gallery.n3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
 /* Fact cards: small flat stickies */
-.facts { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.9rem; justify-content: center; }
+.facts { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.9rem; justify-content: flex-start; }
 .facts li { margin: 0; padding: 0.9rem 1.1rem 0.8rem; min-width: 9.5rem; border-radius: 12px; background: var(--yellow-soft); box-shadow: var(--shadow-soft); display: grid; gap: 0.2rem; transform: rotate(-0.8deg); }
 .facts li::before { display: none; }
 .facts li:nth-child(3n+2) { background: var(--blue-soft); transform: rotate(0.6deg); }
