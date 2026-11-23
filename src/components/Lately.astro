@@ -1,24 +1,32 @@
 ---
 /*
   "Lately": a small bullet-journal log in the home page hero, plus what Sim is
-  reading, listening to and watching. Edited in Sanity Studio → Profile → Lately.
+  reading, listening to, playing and watching. Edited in Sanity Studio → Profile →
+  Lately (home page). The lists below are only used until those fields are filled in.
 */
-import { getProfile } from '../lib/sanity';
+import { getProfile, type Profile } from '../lib/sanity';
 
 const profile = await getProfile();
 
-// Shown until the Lately list is filled in in Studio.
-const FALLBACK = [
+const FALLBACK_LOG = [
   { kind: 'learning', verb: 'learning', text: 'how AWS actually hands you this page' },
   { kind: 'tinkering', verb: 'tinkering', text: 'with the look of this notebook' },
   { kind: 'shipped', verb: 'shipped', text: 'this website' },
 ];
+const FALLBACK_MEDIA: NonNullable<Profile['onRotation']> = [
+  { kind: 'reading', title: 'The Autobiography of Malcolm X', by: 'Malcolm X & Alex Haley' },
+  { kind: 'reading', title: 'Project Hail Mary', by: 'Andy Weir' },
+  { kind: 'listening', title: 'The Fall Off', by: 'J. Cole' },
+  { kind: 'playing', title: 'GTA VI', note: 'chapter 3' },
+];
 const BULLET: Record<string, string> = { learning: '•', tinkering: '○', next: '>', shipped: '✓' };
 
-const items = profile.lately?.length ? profile.lately : FALLBACK;
-const media = profile.onRotation ?? [];
-const order = ['reading', 'listening', 'watching'];
-media.sort((a, b) => order.indexOf(a.kind) - order.indexOf(b.kind));
+const items = profile.lately?.length ? profile.lately : FALLBACK_LOG;
+const media = profile.onRotation?.length ? profile.onRotation : FALLBACK_MEDIA;
+// One label per kind, in a fixed order, with that kind's items under it.
+const groups = (['reading', 'listening', 'playing', 'watching'] as const)
+  .map((kind) => ({ kind, list: media.filter((m) => m.kind === kind) }))
+  .filter((g) => g.list.length);
 const updated = profile.latelyUpdated
   ? new Date(profile.latelyUpdated + 'T00:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })
   : undefined;
@@ -33,20 +41,23 @@ const updated = profile.latelyUpdated
       </li>
     ))}
   </ul>
-  {media.length > 0 && (
+  {groups.length > 0 && (
     <>
-    <h3 class="hand rot">on rotation</h3>
-    <dl class="media">
-      {media.map((m) => (
-        <div class={`m-${m.kind}`}>
-          <dt class="hand">{m.kind}</dt>
-          <dd>
-            {m.link ? <a href={m.link} rel="noopener">{m.title}</a> : <span class="t">{m.title}</span>}
-            {m.by && <span class="by"> · {m.by}</span>}
-          </dd>
-        </div>
-      ))}
-    </dl>
+      <h3 class="hand rot">on rotation</h3>
+      <dl class="media">
+        {groups.map((g) => (
+          <div class={`m-${g.kind}`}>
+            <dt class="hand">{g.kind}</dt>
+            {g.list.map((m) => (
+              <dd>
+                {m.link ? <a href={m.link} rel="noopener">{m.title}</a> : <span class="t">{m.title}</span>}
+                {m.by && <span class="by"> · {m.by}</span>}
+                {m.note && <span class="note hand"> {m.note}</span>}
+              </dd>
+            ))}
+          </div>
+        ))}
+      </dl>
     </>
   )}
   {updated && <p class="upd hand">updated {updated}</p>}
@@ -62,15 +73,16 @@ const updated = profile.latelyUpdated
 
   .rot { font-size: 1.35rem; font-weight: 400; color: var(--ink-2); margin: 1.8rem 0 0.5rem; letter-spacing: 0; }
   .media { margin: 0; display: grid; gap: 0.6rem; }
-  .media div { display: grid; grid-template-columns: 6.4rem 1fr; align-items: baseline; gap: 0.6rem; }
-  .media dt { font-size: 1.45rem; line-height: 1; }
-  .media dd { margin: 0; font-size: 1.02rem; color: var(--ink-2); min-width: 0; }
+  .media div { display: grid; grid-template-columns: 6.4rem 1fr; align-items: baseline; column-gap: 0.6rem; row-gap: 0.2rem; }
+  .media dt { font-size: 1.45rem; line-height: 1; color: var(--c); grid-row: span 4; }
+  .media dd { grid-column: 2; margin: 0; font-size: 1.02rem; color: var(--ink-2); min-width: 0; }
   .media .t, .media a { font-weight: 600; color: var(--ink); }
   .media a { text-decoration: none; background: linear-gradient(var(--c), var(--c)) no-repeat 0 100% / 100% 2px; }
   .media a:hover { background-size: 100% 0.5em; }
-  .m-reading { --c: var(--blue); } .m-listening { --c: var(--red); } .m-watching { --c: var(--yellow); }
-  .media dt { color: var(--c); }
-  .m-watching dt { color: color-mix(in srgb, var(--yellow) 80%, var(--ink)); }
+  .media .note { font-size: 1.3rem; color: var(--c); white-space: nowrap; }
+  .m-reading { --c: var(--blue); } .m-listening { --c: var(--red); }
+  .m-playing { --c: color-mix(in srgb, var(--yellow) 80%, var(--ink)); }
+  .m-watching { --c: var(--ink-2); }
 
   .upd { font-size: 1.25rem; color: var(--ink-2); opacity: 0.75; margin: 1.4rem 0 0; }
   @media (max-width: 860px) {

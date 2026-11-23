@@ -43,22 +43,23 @@ export const profile = defineType({
       validation: (r) => r.max(5),
     }),
     defineField({
-      name: 'onRotation', type: 'array', title: 'Reading, listening, watching', group: 'lately',
-      description: 'Shown under the Lately log. Add one of each (or skip any).',
+      name: 'onRotation', type: 'array', title: 'Reading, listening, playing, watching', group: 'lately',
+      description: 'Shown under the Lately log as "on rotation". Add as many of each kind as you like; they group under one label.',
       of: [{
         type: 'object', name: 'mediaItem',
         fields: [
           defineField({
             name: 'kind', type: 'string', title: 'Type', initialValue: 'reading', validation: (r) => r.required(),
-            options: { list: ['reading', 'listening', 'watching'], layout: 'radio', direction: 'horizontal' },
+            options: { list: ['reading', 'listening', 'playing', 'watching'], layout: 'radio', direction: 'horizontal' },
           }),
           defineField({ name: 'title', type: 'string', validation: (r) => r.required() }),
-          defineField({ name: 'by', type: 'string', title: 'By', description: 'Author, artist, or show/channel. Optional.' }),
+          defineField({ name: 'by', type: 'string', title: 'By', description: 'Author, artist, studio or channel. Optional.' }),
+          defineField({ name: 'note', type: 'string', description: 'A tiny aside, e.g. "chapter 3". Optional.' }),
           defineField({ name: 'link', type: 'url', description: 'Optional.' }),
         ],
         preview: { select: { title: 'title', subtitle: 'kind' } },
       }],
-      validation: (r) => r.max(3),
+      validation: (r) => r.max(8),
     }),
     defineField({ name: 'latelyUpdated', type: 'date', title: 'Lately last updated', group: 'lately', description: 'Shown as a small handwritten "updated" date.' }),
     defineField({ name: 'availability', type: 'string', title: 'Availability line', description: 'e.g. Open to freelance web projects.' }),
