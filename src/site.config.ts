@@ -18,10 +18,11 @@ export const SITE = {
     { label: 'LinkedIn', href: profile.linkedin ?? 'https://www.linkedin.com/' },
   ],
   // Each section of the notebook has a marker colour, used everywhere it appears.
+  // The header ends with a blue "Say hello" button (see Header.astro) instead of a
+  // "Work with me" link; that page is still linked from the home page (p.s. section, "How I work").
   nav: [
     { label: 'Notes', href: '/blog/', color: 'blue' },
     { label: 'Projects', href: '/projects/', color: 'red' },
     { label: 'About', href: '/about/', color: 'ink' },
-    { label: 'Work with me', href: '/work-with-me/', color: 'yellow' },
   ],
 };
