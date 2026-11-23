@@ -55,7 +55,7 @@ const projects = allProjects
 
   <section class="wrap sk">
     <BujoMark kind="star" size={84} style="top: 3rem; left: 6%;" rot="8deg" />
-    <div class="hire">
+    <div class="ps-wrap">
     <aside class="ps sticky" style="--rot:-1deg">
 
       <p class="hand">p.s. if you're here to hire me</p>
@@ -65,7 +65,8 @@ const projects = allProjects
         <a class="btn blue" href={`mailto:${SITE.email}?subject=Hello%20from%20your%20site`}>Email me</a>
       </div>
     </aside>
-    <span class="me" aria-hidden="true"><span class="paper"><img src="/sim-sketch.svg" alt="" width="626" height="674" loading="lazy" /></span></span>
+    <!-- Sketch of Sim, on the page beside the hire-me note. -->
+    <span class="me" aria-hidden="true"><span class="paper"><img src="/sim-sketch.svg" alt="" width="626" height="674" /></span></span>
     </div>
   </section>
 </Base>
@@ -88,10 +89,9 @@ const projects = allProjects
   :global(:root[data-theme='dark']) .hero::before { --wear: 120 95 60; opacity: 0.7; }
   .hero h1 { max-width: min(15ch, 8em); }
   .eyebrow .shares { color: var(--ink-2); font-size: 0.78em; }
-  /* Sketch of Sim: sits on the page beside the p.s. sticky at the bottom. */
-  .hire { display: flex; align-items: center; justify-content: center; gap: clamp(1.5rem, 4vw, 3.5rem); }
-  .hire .ps { margin-inline: 0; flex: 0 1 640px; }
-  .me { position: relative; flex: none; width: 190px; height: auto; transform: rotate(7deg); pointer-events: none; user-select: none; }
+  /* Sketch of Sim: drawn on the page to the right of the "hire me" sticky. */
+  .ps-wrap { position: relative; max-width: 640px; margin-inline: auto; }
+  .me { position: absolute; z-index: 0; width: 170px; height: auto; left: calc(100% + 3rem); top: 50%; margin-top: -95px; transform: rotate(7deg); pointer-events: none; user-select: none; }
   .me img { display: block; width: 100%; height: auto; }
   /* Dark mode: the sketch is a white sticky note taped to the page. */
   /* Dark mode: a torn-out notebook page taped to the board, flapping slightly. */
@@ -114,13 +114,15 @@ const projects = allProjects
     .uline path { animation: none; stroke-dashoffset: 0; }
     h1 .mark, :global(:root[data-theme='dark']) .paper, :global(:root[data-theme='dark']) .me { animation: none; }
   }
+  /* No room beside the note on narrower screens: it peeks over the note's top-right corner instead. */
+  @media (max-width: 1080px) {
+    .ps-wrap { margin-top: 4.5rem; }
+    .me { width: 104px; left: auto; right: -4px; top: -88px; margin-top: 0; transform: rotate(6deg); z-index: 2; }
+  }
   @media (max-width: 860px) {
-    /* Phones: the sketch peeks out from behind the top of the sticky. */
-    .hire { flex-direction: column-reverse; align-items: stretch; gap: 0; }
-    .hire .ps { flex: none; }
-    .me { width: 120px; align-self: flex-end; margin: 0 1.2rem -1.4rem 0; z-index: 0; transform: rotate(6deg); }
-    :global(:root[data-theme='dark']) .paper { padding: 6px 6px 9px; }
-    :global(:root[data-theme='dark']) .me::before { width: 44px; height: 14px; margin-left: -22px; top: -7px; }
+    :global(:root[data-theme='dark']) .me { bottom: -2px; }
+    :global(:root[data-theme='dark']) .paper { padding: 5px 5px 8px; }
+    :global(:root[data-theme='dark']) .me::before { width: 38px; height: 13px; margin-left: -19px; top: -6px; }
   }
   .lede { font-size: 1.18rem; max-width: 50ch; color: var(--ink-2); }
   .key { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 1.2rem; margin: -0.4rem 0 1.4rem; padding: 0.55rem 1.1rem; border-radius: 999px; background: var(--paper); box-shadow: var(--shadow-soft); width: fit-content; font-size: 0.92rem; }
