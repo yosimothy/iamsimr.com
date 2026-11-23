@@ -12,6 +12,7 @@ const FALLBACK_LOG = [
   { kind: 'learning', verb: 'learning', text: 'how AWS actually hands you this page' },
   { kind: 'tinkering', verb: 'tinkering', text: 'with the look of this notebook' },
   { kind: 'shipped', verb: 'shipped', text: 'this website' },
+  { kind: 'crossed', verb: '', text: 'decorate home for the holidays (inside)' },
 ];
 const FALLBACK_MEDIA: NonNullable<Profile['onRotation']> = [
   { kind: 'reading', title: 'The Autobiography of Malcolm X', by: 'Malcolm X & Alex Haley' },
@@ -19,7 +20,14 @@ const FALLBACK_MEDIA: NonNullable<Profile['onRotation']> = [
   { kind: 'listening', title: 'The Fall Off', by: 'J. Cole' },
   { kind: 'playing', title: 'GTA VI', note: '// Just started Chapter 3' },
 ];
-const BULLET: Record<string, string> = { learning: '•', tinkering: '○', next: '>', shipped: '✓' };
+const BULLET: Record<string, string> = { learning: '•', tinkering: '•', next: '>', shipped: '✓', crossed: '•' };
+// Little hand-drawn icons beside each "on rotation" label (stroke only, in the label's colour).
+const ICON: Record<string, string> = {
+  reading: '<path d="M3.2 6.4c2.9-1 5.6-.8 8.6.9v11.6c-2.9-1.6-5.8-1.9-8.7-.8z"/><path d="M11.8 7.3c2.8-1.8 5.9-2 9-.9l-.2 11.8c-3-1.1-5.9-.8-8.8.8"/>',
+  listening: '<path d="M4.4 15.6c-.6-6.4 2.6-10.7 7.7-10.8 5.3-.1 8.4 4.3 7.6 10.9"/><path d="M3.9 14.6c1.6-.6 3.1-.4 3.8.4l.2 4.6c-1.2.9-3 .9-4.1-.2z"/><path d="M20.2 14.5c-1.5-.7-3-.4-3.8.5l-.1 4.5c1.3.9 3 .8 4-.3z"/>',
+  playing: '<path d="M6.7 7.7c3.6-.6 7.1-.6 10.6.1 2.6.6 3.9 4.5 3.5 8.6-.2 1.9-1.9 2.4-3.1 1.1l-2.2-2.3c-2.2-.4-4.4-.4-6.7.1l-2.4 2.3c-1.3 1.1-3 .6-3.1-1.3-.3-4.1 1-8.1 3.4-8.6z"/><path d="M7.9 10.3v3.4M6.2 12.1h3.4"/><path d="M15.6 11.2h.1M17.4 12.9h.1"/>',
+  watching: '<path d="M3.5 7.4c5.7-.5 11.3-.5 17 .1.4 3.3.4 6.6-.1 9.9-5.6.6-11.2.6-16.9 0-.4-3.3-.4-6.6 0-10z"/><path d="M9.4 3.8l2.7 3M15.2 3.4l-3.1 3.4"/>',
+};
 
 const items = profile.lately?.length ? profile.lately : FALLBACK_LOG;
 const media = profile.onRotation?.length ? profile.onRotation : FALLBACK_MEDIA;
@@ -42,17 +50,16 @@ const updated = profile.latelyUpdated
     {items.map((i) => (
       <li class={`k-${i.kind ?? 'learning'}`}>
         <i aria-hidden="true">{BULLET[i.kind ?? 'learning'] ?? '•'}</i>
-        <span><b>{i.verb}</b> {i.text}</span>
+        <span>{i.verb && <b>{i.verb}</b>} {i.kind === 'crossed' ? <s>{i.text}</s> : i.text}</span>
       </li>
     ))}
   </ul>
   {groups.length > 0 && (
     <>
-      <h3 class="hand rot">on rotation</h3>
       <dl class="media">
         {groups.map((g) => (
           <div class={`m-${g.kind}`}>
-            <dt class="hand">{g.kind}</dt>
+            <dt class="hand"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" set:html={ICON[g.kind]} />{g.kind}</dt>
             {g.list.map((m) => (
               <dd>
                 {m.link ? <a href={m.link} rel="noopener">{m.title}</a> : <span class="t">{m.title}</span>}
@@ -79,16 +86,21 @@ const updated = profile.latelyUpdated
   .log b { font-weight: 650; color: var(--ink); }
   .log i { font: 700 1.2rem/1 var(--display); font-style: normal; flex: 0 0 1rem; text-align: center; color: var(--ink); }
   .k-learning i { color: var(--blue); } .k-tinkering i { color: var(--red); } .k-next i { color: var(--yellow); }
+  /* A crossed-out line: bullet-journal for "not doing this one after all" / done and dusted. */
+  .k-crossed, .k-crossed i { color: var(--ink-3); }
+  /* Drawn per line (box-decoration-break), so a wrapped line is struck through on each row. */
+  .k-crossed s { text-decoration: none; -webkit-box-decoration-break: clone; box-decoration-break: clone; background: no-repeat 0 55% / 100% 0.5em
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 10' preserveAspectRatio='none'%3E%3Cpath d='M2 6 C 40 3, 80 7, 120 4.5 S 175 6.5, 198 4' fill='none' stroke='%238a8a8a' stroke-width='2' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E"); }
 
-  .rot { font-size: 1.35rem; font-weight: 400; color: var(--ink-2); margin: 1.8rem 0 0.5rem; letter-spacing: 0; }
-  .media { margin: 0; display: grid; gap: 0.6rem; }
-  .media div { display: grid; grid-template-columns: 6.4rem 1fr; align-items: baseline; column-gap: 0.6rem; row-gap: 0.2rem; }
-  .media dt { font-size: 1.45rem; line-height: 1; color: var(--c); grid-row: span 4; }
+  .media { margin: 1.8rem 0 0; display: grid; gap: 0.6rem; }
+  .media div { display: grid; grid-template-columns: 8rem 1fr; align-items: baseline; column-gap: 0.6rem; row-gap: 0.2rem; }
+  .media dt { font-size: 1.45rem; line-height: 1; color: var(--c); grid-row: span 4; display: flex; align-items: center; gap: 0.35rem; }
+  .ic { flex: 0 0 auto; width: 1.15em; height: 1.15em; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; transform: rotate(-4deg); }
   .media dd { grid-column: 2; margin: 0; font-size: 1.02rem; color: var(--ink-2); min-width: 0; }
   .media .t, .media a { font-weight: 600; color: var(--ink); }
   .media a { text-decoration: none; background: linear-gradient(var(--c), var(--c)) no-repeat 0 100% / 100% 2px; }
   .media a:hover { background-size: 100% 0.5em; }
-  .media .note { font-size: 1.3rem; color: var(--ink-2); white-space: nowrap; }
+  .media .note { font-size: 1.3rem; color: var(--ink-2); }
   .m-reading { --c: var(--blue); } .m-listening { --c: var(--red); }
   .m-playing { --c: color-mix(in srgb, var(--yellow) 80%, var(--ink)); }
   .m-watching { --c: var(--ink-2); }

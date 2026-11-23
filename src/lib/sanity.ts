@@ -165,7 +165,7 @@ export type Profile = {
   photoCaption?: string;
   bioHtml?: string;
   now?: string[];
-  lately?: { kind?: string; verb: string; text: string }[];
+  lately?: { kind?: string; verb?: string; text: string }[];
   onRotation?: { kind: 'reading' | 'listening' | 'playing' | 'watching'; title: string; by?: string; note?: string; link?: string }[];
   latelyUpdated?: string;
   availability?: string;
