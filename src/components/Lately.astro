@@ -1,0 +1,79 @@
+---
+/*
+  "Lately": a small bullet-journal log in the home page hero, plus what Sim is
+  reading, listening to and watching. Edited in Sanity Studio → Profile → Lately.
+*/
+import { getProfile } from '../lib/sanity';
+
+const profile = await getProfile();
+
+// Shown until the Lately list is filled in in Studio.
+const FALLBACK = [
+  { kind: 'learning', verb: 'learning', text: 'how AWS actually hands you this page' },
+  { kind: 'tinkering', verb: 'tinkering', text: 'with the look of this notebook' },
+  { kind: 'shipped', verb: 'shipped', text: 'this website' },
+];
+const BULLET: Record<string, string> = { learning: '•', tinkering: '○', next: '>', shipped: '✓' };
+
+const items = profile.lately?.length ? profile.lately : FALLBACK;
+const media = profile.onRotation ?? [];
+const order = ['reading', 'listening', 'watching'];
+media.sort((a, b) => order.indexOf(a.kind) - order.indexOf(b.kind));
+const updated = profile.latelyUpdated
+  ? new Date(profile.latelyUpdated + 'T00:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })
+  : undefined;
+---
+<aside class="lately" aria-labelledby="lately-h">
+  <h2 id="lately-h" class="hand">lately</h2>
+  <ul class="log">
+    {items.map((i) => (
+      <li class={`k-${i.kind ?? 'learning'}`}>
+        <i aria-hidden="true">{BULLET[i.kind ?? 'learning'] ?? '•'}</i>
+        <span><b>{i.verb}</b> {i.text}</span>
+      </li>
+    ))}
+  </ul>
+  {media.length > 0 && (
+    <>
+    <h3 class="hand rot">on rotation</h3>
+    <dl class="media">
+      {media.map((m) => (
+        <div class={`m-${m.kind}`}>
+          <dt class="hand">{m.kind}</dt>
+          <dd>
+            {m.link ? <a href={m.link} rel="noopener">{m.title}</a> : <span class="t">{m.title}</span>}
+            {m.by && <span class="by"> · {m.by}</span>}
+          </dd>
+        </div>
+      ))}
+    </dl>
+    </>
+  )}
+  {updated && <p class="upd hand">updated {updated}</p>}
+</aside>
+<style>
+  .lately { padding: 0.5rem 0 0.5rem clamp(0rem, 3vw, 2.5rem); max-width: 30rem; }
+  h2 { font-size: 2rem; font-weight: 400; color: var(--red); margin: 0 0 0.7rem; letter-spacing: 0; }
+  .log { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.8rem; }
+  .log li { display: flex; gap: 0.9rem; align-items: baseline; font-size: 1.12rem; line-height: 1.45; color: var(--ink-2); }
+  .log b { font-weight: 650; color: var(--ink); }
+  .log i { font: 700 1.2rem/1 var(--display); font-style: normal; flex: 0 0 1rem; text-align: center; color: var(--ink); }
+  .k-learning i { color: var(--blue); } .k-tinkering i { color: var(--red); } .k-next i { color: var(--yellow); }
+
+  .rot { font-size: 1.35rem; font-weight: 400; color: var(--ink-2); margin: 1.8rem 0 0.5rem; letter-spacing: 0; }
+  .media { margin: 0; display: grid; gap: 0.6rem; }
+  .media div { display: grid; grid-template-columns: 6.4rem 1fr; align-items: baseline; gap: 0.6rem; }
+  .media dt { font-size: 1.45rem; line-height: 1; }
+  .media dd { margin: 0; font-size: 1.02rem; color: var(--ink-2); min-width: 0; }
+  .media .t, .media a { font-weight: 600; color: var(--ink); }
+  .media a { text-decoration: none; background: linear-gradient(var(--c), var(--c)) no-repeat 0 100% / 100% 2px; }
+  .media a:hover { background-size: 100% 0.5em; }
+  .m-reading { --c: var(--blue); } .m-listening { --c: var(--red); } .m-watching { --c: var(--yellow); }
+  .media dt { color: var(--c); }
+  .m-watching dt { color: color-mix(in srgb, var(--yellow) 80%, var(--ink)); }
+
+  .upd { font-size: 1.25rem; color: var(--ink-2); opacity: 0.75; margin: 1.4rem 0 0; }
+  @media (max-width: 860px) {
+    .lately { padding-left: 0; }
+  }
+</style>
