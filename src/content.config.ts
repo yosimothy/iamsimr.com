@@ -18,6 +18,11 @@ const blog = defineCollection({
     updated: z.coerce.date().optional(),
     tags: z.array(z.string()).default([]),
     draft: z.boolean().default(false),
+    // The photo at the top of a note, and up to three skimmable takeaways.
+    cover: z
+      .object({ url: z.string(), alt: z.string().nullish(), caption: z.string().nullish(), hotspot: z.object({ x: z.number(), y: z.number() }).nullish() })
+      .optional(),
+    keyPoints: z.array(z.string()).max(3).default([]),
   }),
 });
 
