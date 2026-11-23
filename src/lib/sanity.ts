@@ -41,6 +41,16 @@ function client() {
 
 type Block = { _type: string; _key: string; [k: string]: any };
 
+/** Escape text, then turn `backticks` into <code>. */
+const inlineCode = (t = '') => escapeHTML(t).replace(/`([^`]+)`/g, '<code>$1</code>');
+const paras = (t = '') => t.split(/\n\s*\n/).map((p) => `<p>${inlineCode(p.trim())}</p>`).join('');
+function figure(img: any, w = 1400) {
+  if (!img?.url) return '';
+  const cap = img.caption ? `<figcaption>${escapeHTML(img.caption)}</figcaption>` : '';
+  return `<figure><img src="${img.url}?w=${w}&auto=format" alt="${escapeHTML(img.alt ?? '')}" loading="lazy" />${cap}</figure>`;
+}
+
+
 /** Portable Text → HTML, with syntax-highlighted code and responsive images. */
 async function renderBody(blocks: Block[] = []): Promise<string> {
   // Highlight code blocks first (async), then render everything (sync).
@@ -61,12 +71,14 @@ async function renderBody(blocks: Block[] = []): Promise<string> {
     components: {
       types: {
         code: ({ value }) => highlighted.get(value._key) ?? '',
-        image: ({ value }) => {
-          if (!value?.url) return '';
-          const alt = escapeHTML(value.alt ?? '');
-          const cap = value.caption ? `<figcaption>${escapeHTML(value.caption)}</figcaption>` : '';
-          return `<figure><img src="${value.url}?w=1400&auto=format" alt="${alt}" loading="lazy" />${cap}</figure>`;
-        },
+        image: ({ value }) => figure(value),
+        layers: ({ value }) => `<div class="layers wide">
+          <div class="plain"><p class="lbl">in plain words</p>${paras(value.plain)}</div>
+          ${value.tech?.length ? `<div class="tech"><p class="lbl">under the hood</p><ul>${value.tech.map((t: string) => `<li>${inlineCode(t)}</li>`).join('')}</ul></div>` : ''}
+        </div>`,
+        imageText: ({ value }) => `<div class="image-text wide ${value.side === 'left' ? 'img-left' : 'img-right'}">${figure(value.image, 1200)}<div class="it-text">${paras(value.text)}</div></div>`,
+        gallery: ({ value }) => `<div class="gallery wide n${value.images?.length ?? 2}">${(value.images ?? []).map((i: any) => figure(i, 1000)).join('')}</div>`,
+        facts: ({ value }) => `<ul class="facts wide">${(value.items ?? []).map((f: any) => `<li><span class="v">${escapeHTML(f.value ?? '')}</span><span class="k">${escapeHTML(f.label ?? '')}</span></li>`).join('')}</ul>`,
       },
       marks: {
         link: ({ children, value }) => {
@@ -88,7 +100,11 @@ function plainText(blocks: Block[] = []) {
 }
 
 // Pull image URLs alongside the body so the renderer doesn't need extra lookups.
-const BODY = `body[]{..., _type == "image" => {..., "url": asset->url}}`;
+const BODY = `body[]{...,
+  _type == "image" => {..., "url": asset->url},
+  _type == "imageText" => {..., image{..., "url": asset->url}},
+  _type == "gallery" => {..., images[]{..., "url": asset->url}}
+}`;
 
 // An image with its URL, alt text and chosen focus point (hotspot).
 const IMAGE = `{ "url": asset->url, alt, hotspot }`;
@@ -112,7 +128,7 @@ export function imageUrl(img: SanityImage, w: number, h?: number) {
 
 const QUERIES = {
   post: `*[_type == "post" && defined(slug.current)]{
-    "id": slug.current, title, description,
+    "id": slug.current, title, description, "kind": coalesce(kind, "note"),
     "date": publishedAt, "updated": updatedAt,
     "tags": coalesce(tags, []), "keyPoints": coalesce(keyPoints, []),
     "cover": select(defined(cover.asset) => cover{ "url": asset->url, alt, caption, hotspot }), ${BODY}
@@ -120,7 +136,8 @@ const QUERIES = {
   project: `*[_type == "project" && defined(slug.current)]{
     "id": slug.current, title, summary, role,
     "stack": coalesce(stack, []), link, repo, "cover": select(defined(cover.asset) => cover${IMAGE}),
-    "order": coalesce(order, 100), "featured": coalesce(featured, false), ${BODY}
+    "order": coalesce(order, 100), "featured": coalesce(featured, false),
+    "date": coalesce(publishedAt, _createdAt), ${BODY}
   }`,
 };
 

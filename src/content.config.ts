@@ -17,6 +17,7 @@ const blog = defineCollection({
     date: z.coerce.date(),
     updated: z.coerce.date().optional(),
     tags: z.array(z.string()).default([]),
+    kind: z.enum(['note', 'yap']).default('note'),
     draft: z.boolean().default(false),
     // The photo at the top of a note, and up to three skimmable takeaways.
     cover: z
@@ -38,6 +39,7 @@ const projects = defineCollection({
     link: z.string().url().optional(),
     repo: z.string().url().optional(),
     order: z.number().default(100),
+    date: z.coerce.date().optional(),
     featured: z.boolean().default(false),
     cover: z
       .object({ url: z.string().url(), alt: z.string().nullish(), hotspot: z.object({ x: z.number(), y: z.number() }).nullish() })

@@ -150,6 +150,8 @@ section { padding-block: clamp(2.75rem, 7vw, 5rem); }
 .section-head .hand { color: var(--ink-2); }
 
 .grid { display: grid; gap: 1.75rem; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+/* Project cards are wide, landscape pages: two to a row on desktop. */
+.grid.desk { grid-template-columns: repeat(auto-fill, minmax(min(100%, 540px), 1fr)); gap: 2.2rem; }
 
 /* A page torn out and taped down: soft edges, real depth */
 .card {
@@ -169,11 +171,9 @@ section { padding-block: clamp(2.75rem, 7vw, 5rem); }
   border-left: 1px dashed rgb(0 0 0 / 8%);
   border-right: 1px dashed rgb(0 0 0 / 8%);
 }
-.tag {
-  display: inline-block; font-size: 0.78rem; font-weight: 600;
-  padding: 0.18em 0.7em; border-radius: 999px;
-  margin: 0 0.35em 0.4em 0; background: var(--soft, var(--paper-2)); color: var(--ink);
-}
+/* Tags read like a pencilled list, not buttons: quiet text with dots between. */
+.tag { display: inline; font-size: 0.86rem; font-weight: 500; color: var(--ink-2); }
+.tag + .tag::before { content: '·'; margin: 0 0.45em; color: var(--accent, var(--ink-2)); font-weight: 700; }
 
 /* Colour key. Each section of the notebook has its own marker. */
 .c-blue { --accent: var(--blue); --soft: var(--blue-soft); }
@@ -258,3 +258,64 @@ a.sticky:hover { color: #1a1a1a; transform: rotate(0deg) translateY(-4px); box-s
   .hi-hand, .eyebrow:hover .hi-hand { animation: none; }
   .peace-hand { transition: none; }
 }
+
+/* ---------- Long-form layout (notes and projects) ----------
+   Text stays at a comfortable ~44rem line; images and the richer blocks
+   below step out wider so the page uses the desktop width. */
+/* Left-aligned like a notebook page; !important beats the per-element margins above. */
+.flow > * { max-width: 44rem; margin-left: 0 !important; margin-right: 0 !important; }
+.flow > ul, .flow > ol { padding-left: 1.4em; }
+.flow > figure { max-width: 58rem; }
+.flow > .wide { max-width: 68rem; margin-block: 2.4em; }
+.flow > h2 { margin-top: 2.4em; }
+
+/* Plain words beside the technical detail */
+.layers { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(1.2rem, 3vw, 2.5rem); align-items: start; }
+.layers .lbl { font: 400 1.45rem/1 var(--hand); margin: 0 0 0.6rem; }
+.layers .plain .lbl { color: var(--red); }
+.layers .plain p:not(.lbl) { font-size: 1.15rem; line-height: 1.65; margin: 0 0 0.8em; }
+.layers .tech { background: var(--paper-2); border-radius: 14px; padding: 1.1rem 1.3rem 0.6rem; transform: rotate(0.4deg); box-shadow: inset 0 0 0 1px var(--rule); }
+.layers .tech .lbl { color: var(--blue); }
+.layers .tech ul { list-style: none; margin: 0; padding: 0; }
+.layers .tech li { position: relative; padding-left: 1.2em; margin: 0 0 0.65em; font-size: 0.97rem; line-height: 1.55; color: var(--ink-2); }
+/* bullet-journal "note" signifier: a short dash */
+.layers .tech li::before { content: ''; position: absolute; left: 0.1em; top: 0.78em; width: 0.6em; height: 2px; border-radius: 2px; background: var(--blue); }
+.layers .tech code { font-size: 0.85em; }
+
+/* Image beside text */
+.image-text { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: clamp(1.2rem, 3vw, 2.5rem); align-items: center; }
+.image-text.img-left figure { order: -1; }
+.image-text.img-right { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); }
+.image-text figure, .gallery figure { margin: 0; }
+.image-text img, .gallery img { margin: 0; width: 100%; }
+.image-text .it-text p { font-size: 1.1rem; line-height: 1.7; margin: 0 0 0.9em; }
+
+/* Images side by side */
+.gallery { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(1rem, 2.5vw, 2rem); align-items: end; }
+.gallery.n3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+/* Fact cards: small flat stickies */
+.facts { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.9rem; justify-content: flex-start; }
+.facts li { margin: 0; padding: 0.9rem 1.1rem 0.8rem; min-width: 9.5rem; border-radius: 12px; background: var(--yellow-soft); box-shadow: var(--shadow-soft); display: grid; gap: 0.2rem; transform: rotate(-0.8deg); }
+.facts li::before { display: none; }
+.facts li:nth-child(3n+2) { background: var(--blue-soft); transform: rotate(0.6deg); }
+.facts li:nth-child(3n) { background: var(--red-soft); transform: rotate(-0.3deg); }
+.facts .v { font: 800 1.5rem/1.1 var(--display); color: var(--ink); }
+.facts .k { font-size: 0.9rem; color: var(--ink-2); }
+
+@media (max-width: 760px) {
+  .layers, .image-text, .image-text.img-right, .gallery, .gallery.n3 { grid-template-columns: 1fr; }
+  .image-text.img-left figure { order: 0; }
+}
+
+/* Marker dots: hand-dabbed blobs, not perfect circles. Colour = kind of entry. */
+.mdot { display: inline-block; width: 15px; height: 13px; background: var(--dot-c, var(--blue)); flex: none;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M2.2 11.8C1.6 8.6 4.4 6.1 8.6 5.5c3.6-.5 7.9-.1 9.1 2.6 1 2.4-.9 5.2-4.6 6.5-2.4.8-4.6.6-6.6.9-2.2.3-4-1.3-4.3-3.7z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M2.2 11.8C1.6 8.6 4.4 6.1 8.6 5.5c3.6-.5 7.9-.1 9.1 2.6 1 2.4-.9 5.2-4.6 6.5-2.4.8-4.6.6-6.6.9-2.2.3-4-1.3-4.3-3.7z'/%3E%3C/svg%3E") center / 100% 100% no-repeat; }
+.mdot.k-project { --dot-c: var(--red);
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M1.9 10.9c-.3-2.8 2.3-5.4 6.2-6.1 2.9-.5 5.4.4 7.4 1.2 2.2.9 3.1 2.9 2 4.9-1.3 2.4-4.8 3.9-8.3 3.9-3.6 0-7-1.3-7.3-3.9z'/%3E%3C/svg%3E");
+          mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M1.9 10.9c-.3-2.8 2.3-5.4 6.2-6.1 2.9-.5 5.4.4 7.4 1.2 2.2.9 3.1 2.9 2 4.9-1.3 2.4-4.8 3.9-8.3 3.9-3.6 0-7-1.3-7.3-3.9z'/%3E%3C/svg%3E"); transform: rotate(12deg); }
+.mdot.k-yap { --dot-c: var(--yellow);
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M3.1 9.4c.6-3 3.9-4.6 7.3-4.3 3.7.3 7.2 1.9 7 4.9-.2 2.8-3.5 4.8-7.6 4.6-2.2-.1-3.8.4-5.3-.6-1.4-.9-1.7-2.9-1.4-4.6z'/%3E%3C/svg%3E");
+          mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M3.1 9.4c.6-3 3.9-4.6 7.3-4.3 3.7.3 7.2 1.9 7 4.9-.2 2.8-3.5 4.8-7.6 4.6-2.2-.1-3.8.4-5.3-.6-1.4-.9-1.7-2.9-1.4-4.6z'/%3E%3C/svg%3E"); transform: rotate(-16deg); }
+.mdot.k-note { --dot-c: var(--blue); transform: rotate(-8deg); }

@@ -5,11 +5,10 @@ import PostList from '../components/PostList.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import BujoMark from '../components/BujoMark.astro';
 import Lately from '../components/Lately.astro';
-import { getPosts } from '../lib/posts';
+import { getEntries } from '../lib/posts';
 import { SITE } from '../site.config';
 
-const allPosts = await getPosts();
-const posts = allPosts.slice(0, 5);
+const entries = await getEntries(6);
 const allProjects = await getCollection('projects');
 const projects = allProjects
   .filter((p) => p.data.featured)
@@ -36,11 +35,11 @@ const projects = allProjects
     </div>
     <dl class="key" aria-label="How this notebook is colour-coded">
       <dt class="hand">key</dt>
-      <div><dd><i class="sw b"></i>notes &amp; learnings</dd></div>
-      <div><dd><i class="sw r"></i>projects</dd></div>
-      <div><dd><i class="sw y"></i>work with me</dd></div>
+      <div><dd><i class="mdot k-note"></i>notes &amp; learnings</dd></div>
+      <div><dd><i class="mdot k-project"></i>projects</dd></div>
+      <div><dd><i class="mdot k-yap"></i>yaps &amp; opinions</dd></div>
     </dl>
-    <PostList posts={posts} />
+    <PostList entries={entries} />
   </section>
 
   {projects.length > 0 && (
@@ -50,7 +49,7 @@ const projects = allProjects
         <h2 class="squig r">On the desk</h2>
         <a href="/projects/" class="hand">all projects →</a>
       </div>
-      <div class="grid">{projects.map((project, i) => <ProjectCard project={project} index={i} />)}</div>
+      <div class="grid desk">{projects.map((project, i) => <ProjectCard project={project} index={i} />)}</div>
     </section>
   )}
 
@@ -129,8 +128,7 @@ const projects = allProjects
   .key { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 1.2rem; margin: -0.4rem 0 1.4rem; padding: 0.55rem 1.1rem; border-radius: 999px; background: var(--paper); box-shadow: var(--shadow-soft); width: fit-content; font-size: 0.92rem; }
   .key dt { color: var(--red); font-size: 1.45rem; margin-right: 0.2rem; }
   .key dd { margin: 0; display: flex; align-items: center; gap: 0.45rem; }
-  .sw { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
-  .sw.b { background: var(--blue); } .sw.r { background: var(--red); } .sw.y { background: var(--yellow); }
+  .key .mdot { width: 16px; height: 14px; }
 
   .sk { position: relative; }
   .section-head, :global(.log), .grid, .ps { position: relative; z-index: 1; }
