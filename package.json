@@ -7,7 +7,10 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "astro check"
+    "check": "astro check",
+    "note": "node scripts/note.mjs",
+    "build:drafts": "SANITY_PERSPECTIVE=drafts astro build",
+    "deploy:site": "./scripts/deploy.sh"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.0",
@@ -20,5 +23,8 @@
     "@sanity/client": "^7.28.0",
     "astro": "^5.18.0",
     "shiki": "^3.23.0"
+  },
+  "devDependencies": {
+    "js-yaml": "^4.3.2"
   }
 }

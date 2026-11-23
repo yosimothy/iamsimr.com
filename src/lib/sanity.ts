@@ -21,14 +21,20 @@ export const sanityConfig = {
 };
 export const useSanity = !env('SANITY_DISABLE');
 
+// 'published' for the real site. 'drafts' (needs SANITY_READ_TOKEN) builds a
+// private preview that includes unpublished drafts, for reviewing a note
+// before it goes live: `npm run build:drafts`.
+const perspective = env('SANITY_PERSPECTIVE') === 'drafts' ? 'drafts' : 'published';
+
 function client() {
   return createClient({
     projectId: sanityConfig.projectId!,
     dataset: sanityConfig.dataset,
     apiVersion: '2025-01-01',
     useCdn: false, // builds want the freshest published content
-    perspective: 'published', // drafts never reach the site
-    token: env('SANITY_READ_TOKEN'), // only needed if the dataset is private
+    perspective, // drafts never reach the live site
+    // Only needed if the dataset is private, or to see drafts (the notes token works too).
+    token: env('SANITY_READ_TOKEN') || (perspective === 'drafts' ? env('SANITY_WRITE_TOKEN') : undefined),
     ...(env('SANITY_API_HOST') ? { apiHost: env('SANITY_API_HOST'), useProjectHostname: false } : {}), // for local testing
   });
 }
@@ -108,7 +114,8 @@ const QUERIES = {
   post: `*[_type == "post" && defined(slug.current)]{
     "id": slug.current, title, description,
     "date": publishedAt, "updated": updatedAt,
-    "tags": coalesce(tags, []), ${BODY}
+    "tags": coalesce(tags, []), "keyPoints": coalesce(keyPoints, []),
+    "cover": select(defined(cover.asset) => cover{ "url": asset->url, alt, caption, hotspot }), ${BODY}
   }`,
   project: `*[_type == "project" && defined(slug.current)]{
     "id": slug.current, title, summary, role,

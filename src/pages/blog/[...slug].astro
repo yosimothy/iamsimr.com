@@ -1,42 +1,126 @@
 ---
+/*
+  One note. Laid out to be easy to read and easy to skim:
+  a big title and one-line summary, the photo, a sticky note with the short
+  version, then short sections in large, comfortable type.
+*/
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import { getPosts, formatDate, readingTime } from '../../lib/posts';
+import { imageUrl } from '../../lib/sanity';
 import { SITE } from '../../site.config';
 
 // At build time Astro calls this once and writes one HTML page per post.
 export async function getStaticPaths() {
-  const posts = await getPosts();
-  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+  const posts = await getPosts(); // newest first
+  return posts.map((post, i) => ({
+    params: { slug: post.id },
+    props: { post, newer: posts[i - 1], older: posts[i + 1] },
+  }));
 }
-const { post } = Astro.props;
+const { post, newer, older } = Astro.props;
 const { Content } = await render(post);
+const { title, description, date, tags, cover, keyPoints } = post.data;
+// Sanity images can be resized on the fly; local images are used as they are.
+const coverSrc = cover && (/^https?:/.test(cover.url) ? imageUrl(cover as any, 1760, 990) : cover.url);
 ---
-<Base title={post.data.title} description={post.data.description} type="article">
-  <article class="narrow">
-    <header>
-      <p class="meta muted">
-        <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
-        · {readingTime(post.body)}
+<Base title={title} description={description} type="article">
+  <article>
+    <header class="narrow head">
+      <p class="when">
+        <time datetime={date.toISOString()}>{formatDate(date)}</time>
+        <span aria-hidden="true">·</span> {readingTime(post.body)}
       </p>
-      <h1>{post.data.title}</h1>
-      <p class="dek muted">{post.data.description}</p>
-      <div>{post.data.tags.map((t) => <span class="tag">#{t}</span>)}</div>
+      <h1>{title}</h1>
+      <p class="dek">{description}</p>
     </header>
-    <div class="prose"><Content /></div>
-    <aside class="card taped c-yellow">
-      <p><strong>Thanks for reading.</strong> If this was useful, or you'd like help with a project of your own, email me at <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.</p>
-      <a href="/blog/">← back to all notes</a>
-    </aside>
+
+    {cover && (
+      <figure class="cover">
+        <img src={coverSrc} alt={cover.alt ?? ''} width="1760" height="990" fetchpriority="high" />
+        {cover.caption && <figcaption>{cover.caption}</figcaption>}
+      </figure>
+    )}
+
+    <div class="narrow">
+      {keyPoints.length > 0 && (
+        <aside class="glance" aria-label="The short version">
+          <p class="glance-label">the short version</p>
+          <ul>{keyPoints.map((k) => <li>{k}</li>)}</ul>
+        </aside>
+      )}
+
+      <div class="prose note"><Content /></div>
+
+      {tags.length > 0 && <p class="tags">{tags.map((t) => <span class="tag">#{t}</span>)}</p>}
+
+      {(newer || older) && (
+        <nav class="pager" aria-label="More notes">
+          {older ? (
+            <a class="older" href={`/blog/${older.id}/`}><span class="dir">← older</span><span class="t">{older.data.title}</span></a>
+          ) : <span />}
+          {newer && (
+            <a class="newer" href={`/blog/${newer.id}/`}><span class="dir">newer →</span><span class="t">{newer.data.title}</span></a>
+          )}
+        </nav>
+      )}
+
+      <aside class="card taped c-yellow thanks">
+        <p><strong>Thanks for reading.</strong> If this was useful, or you'd like help with a project of your own, email me at <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.</p>
+        <a href="/blog/">← all notes</a>
+      </aside>
+    </div>
   </article>
 </Base>
 <style>
-  article { padding-block: clamp(2rem, 6vw, 4rem); position: relative; }
-  /* the red margin line of a notebook page */
-  article::before { content: ''; position: absolute; top: 0; bottom: 0; left: -2.2rem; border-left: 2px solid var(--red); opacity: 0.45; }
-  @media (max-width: 800px) { article::before { display: none; } }
-  header { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 0; background: no-repeat 0 100% / 100% 12px url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 12' preserveAspectRatio='none'%3E%3Cpath d='M2 7 Q 30 1 60 7 T 120 7 T 180 7 T 240 7 T 300 7 T 360 7 T 398 7' fill='none' stroke='%231f4fbf' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E"); }
-  .meta { font-family: var(--hand); font-size: 1.4rem; color: var(--blue); margin-bottom: 0.6rem; }
-  .dek { font-size: 1.25rem; }
-  aside { margin-top: 3.5rem; }
+  article { padding-block: clamp(2rem, 6vw, 4rem) clamp(3rem, 8vw, 5rem); }
+  /* A slightly narrower column than other pages: about 60–65 characters a line. */
+  .narrow { width: min(100% - 32px, 41rem); }
+
+  .head { margin-bottom: clamp(1.75rem, 4vw, 2.5rem); }
+  .when { font: 400 1.5rem/1 var(--hand); color: var(--red); margin: 0 0 0.9rem; display: inline-block; transform: rotate(-1.5deg); }
+  .when span { margin: 0 0.15em; }
+  h1 { font-size: clamp(2.3rem, 6.2vw, 3.9rem); line-height: 1.02; margin-bottom: 0.4em; text-wrap: balance; }
+  .dek { font-size: clamp(1.15rem, 2.2vw, 1.35rem); line-height: 1.5; color: var(--ink-2); margin: 0; text-wrap: pretty; }
+
+  /* The photo runs a little wider than the text, like a print taped across the page. */
+  .cover { width: min(100% - 32px, 55rem); margin: 0 auto clamp(2rem, 5vw, 3rem); }
+  .cover img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: var(--radius); box-shadow: var(--shadow-soft); background: var(--paper-2); }
+  .cover figcaption { font: 400 1.35rem/1.2 var(--hand); color: var(--ink-2); text-align: center; margin-top: 0.7rem; }
+
+  /* The short version: a flat yellow sticky. */
+  .glance {
+    background: var(--sticky-y); color: #141414;
+    border-radius: 14px; box-shadow: var(--shadow-soft);
+    padding: 1.1rem 1.4rem 1rem; margin: 0 0 clamp(2rem, 5vw, 2.75rem);
+    transform: rotate(-0.5deg);
+  }
+  .glance-label { font: 400 1.5rem/1 var(--hand); color: #c4261b; margin: 0 0 0.55rem; }
+  .glance ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; }
+  .glance li { position: relative; padding-left: 1.4rem; font-size: 1.06rem; line-height: 1.45; font-weight: 500; }
+  .glance li::before { content: ''; position: absolute; left: 0.2rem; top: 0.55em; width: 8px; height: 8px; border-radius: 50%; background: #141414; }
+
+  /* Body copy: bigger type, more air, short paragraphs breathe. */
+  .note { font-size: clamp(1.1rem, 1.6vw, 1.2rem); line-height: 1.75; }
+  .note :global(p) { margin-bottom: 1.3em; }
+  .note > :global(p:first-child) { font-size: 1.12em; line-height: 1.65; color: var(--ink); }
+  /* Section headings are signposts for skimmers: a red bullet, then the words. */
+  .note :global(h2) { font-size: clamp(1.45rem, 2.6vw, 1.75rem); margin: 2.4em 0 0.6em; line-height: 1.15; }
+  .note :global(h2::before) { content: ''; display: inline-block; width: 0.42em; height: 0.42em; border-radius: 50%; background: var(--red); margin-right: 0.45em; vertical-align: 0.12em; }
+  .note :global(h3) { font-size: 1.2rem; margin: 1.9em 0 0.5em; }
+  .note :global(blockquote) { margin: 1.8em 0; font-size: 1.75em; line-height: 1.2; border-left-width: 6px; border-radius: 3px; padding: 0.15em 0 0.2em 0.9em; }
+  .note :global(blockquote p) { margin: 0; }
+  .note :global(figure), .note :global(img) { margin-block: 2em; }
+
+  .tags { margin: 2.5rem 0 0; }
+
+  .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 3rem; }
+  .pager a { display: grid; gap: 0.25rem; padding: 1rem 1.1rem; border-radius: 14px; background: var(--paper); box-shadow: var(--shadow-soft); text-decoration: none; transition: transform 0.18s ease; }
+  .pager a:hover { color: var(--ink); transform: translateY(-2px); }
+  .pager .newer { text-align: right; grid-column: 2; }
+  .dir { font: 400 1.3rem/1 var(--hand); color: var(--blue); }
+  .t { font: 700 1.05rem/1.25 var(--display); letter-spacing: -0.01em; }
+  @media (max-width: 560px) { .pager { grid-template-columns: 1fr; } .pager .newer { grid-column: 1; } }
+
+  .thanks { margin-top: 3rem; }
 </style>
