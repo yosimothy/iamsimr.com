@@ -25,6 +25,10 @@ const projects = allProjects
         You'll find my notes on the web and AI, on whichever hobby has my attention this month, and on the projects that come out of both.
         Some entries are polished, most are works in progress. Have a flip through.
       </p>
+      <p class="hello">
+        <a class="btn blue" href="mailto:hey@iamsimr.com">Say hello</a>
+        <span class="hand">or write to <a href="mailto:hey@iamsimr.com">hey@iamsimr.com</a></span>
+      </p>
     </div>
     <Lately />
   </section>
@@ -84,7 +88,7 @@ const projects = allProjects
     -webkit-mask-image: radial-gradient(closest-side, #000 70%, transparent);
     mask-image: radial-gradient(closest-side, #000 70%, transparent); }
   :global(:root[data-theme='dark']) .hero::before { --wear: 120 95 60; opacity: 0.7; }
-  .hero h1 { max-width: 15ch; }
+  .hero h1 { max-width: min(15ch, 8em); }
   .eyebrow .shares { color: var(--ink-2); }
   /* Sketch of Sim: sits on the page beside the greeting, behind the text. */
   .eyebrow { position: relative; }
@@ -118,6 +122,9 @@ const projects = allProjects
     :global(:root[data-theme='dark']) .paper { padding: 5px 5px 8px; }
     :global(:root[data-theme='dark']) .me::before { width: 38px; height: 13px; margin-left: -19px; top: -6px; }
   }
+  .hello { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1.1rem; margin-top: 1.6rem; }
+  .hello .hand { font-size: 1.45rem; color: var(--ink-2); }
+  .hello .hand a { color: var(--blue); text-decoration: none; background: linear-gradient(currentColor, currentColor) no-repeat 0 92% / 100% 2px; }
   .lede { font-size: 1.18rem; max-width: 50ch; color: var(--ink-2); }
   .key { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 1.2rem; margin: -0.4rem 0 1.4rem; padding: 0.55rem 1.1rem; border-radius: 999px; background: var(--paper); box-shadow: var(--shadow-soft); width: fit-content; font-size: 0.92rem; }
   .key dt { color: var(--red); font-size: 1.45rem; margin-right: 0.2rem; }
