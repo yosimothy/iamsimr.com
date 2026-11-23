@@ -19,7 +19,7 @@ const projects = allProjects
 <Base>
   <section class="hero wrap">
     <div class="intro">
-      <p class="eyebrow"><span class="me" aria-hidden="true"><span class="paper"><img src="/sim-sketch.svg" alt="" width="626" height="674" /></span></span>hi, I'm {SITE.name} <span class="hi-hand" role="img" aria-label="waving hand">👋</span><br /><span class="shares">this website shares:</span></p>
+      <p class="eyebrow"><span class="me" aria-hidden="true"><span class="paper"><img src="/sim-sketch.svg" alt="" width="626" height="674" /></span></span>hi, I'm {SITE.name} <span class="hi-hand" role="img" aria-label="waving hand">👋</span><br /><span class="shares">welcome to my website, where you'll find:</span></p>
       <h1>Things I'm <span class="mark">learning</span>, making, and <span class="uline">occasionally<svg viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true"><path d="M3 8 C 40 4, 80 9, 120 6 S 175 4, 197 6" pathLength="1" /></svg></span> getting wrong.</h1>
       <p class="lede">
         You'll find my notes on the web and AI, on whichever hobby has my attention this month, and on the projects that come out of both.
@@ -85,7 +85,7 @@ const projects = allProjects
     mask-image: radial-gradient(closest-side, #000 70%, transparent); }
   :global(:root[data-theme='dark']) .hero::before { --wear: 120 95 60; opacity: 0.7; }
   .hero h1 { max-width: min(15ch, 8em); }
-  .eyebrow .shares { color: var(--ink-2); }
+  .eyebrow .shares { color: var(--ink-2); font-size: 0.78em; }
   /* Sketch of Sim: sits on the page beside the greeting, behind the text. */
   .eyebrow { position: relative; }
   .me { position: absolute; z-index: -1; width: 170px; height: auto; left: calc(100% + 80px); top: 14px; transform: rotate(9deg); pointer-events: none; user-select: none; }
