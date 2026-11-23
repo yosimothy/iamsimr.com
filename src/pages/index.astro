@@ -5,11 +5,10 @@ import PostList from '../components/PostList.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import BujoMark from '../components/BujoMark.astro';
 import Lately from '../components/Lately.astro';
-import { getPosts } from '../lib/posts';
+import { getEntries } from '../lib/posts';
 import { SITE } from '../site.config';
 
-const allPosts = await getPosts();
-const posts = allPosts.slice(0, 5);
+const entries = await getEntries(6);
 const allProjects = await getCollection('projects');
 const projects = allProjects
   .filter((p) => p.data.featured)
@@ -19,7 +18,7 @@ const projects = allProjects
 <Base>
   <section class="hero wrap">
     <div class="intro">
-      <p class="eyebrow"><span class="me" aria-hidden="true"><span class="paper"><img src="/sim-sketch.svg" alt="" width="626" height="674" /></span></span>hi, I'm {SITE.name} <span class="hi-hand" role="img" aria-label="waving hand">👋</span><br /><span class="shares">this website shares:</span></p>
+      <p class="eyebrow"><span class="me" aria-hidden="true"><span class="paper"><img src="/sim-sketch.svg" alt="" width="626" height="674" /></span></span>hi, I'm {SITE.name} <span class="hi-hand" role="img" aria-label="waving hand">👋</span><br /><span class="shares">welcome to my website, where you'll find:</span></p>
       <h1>Things I'm <span class="mark">learning</span>, making, and <span class="uline">occasionally<svg viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true"><path d="M3 8 C 40 4, 80 9, 120 6 S 175 4, 197 6" pathLength="1" /></svg></span> getting wrong.</h1>
       <p class="lede">
         You'll find my notes on the web and AI, on whichever hobby has my attention this month, and on the projects that come out of both.
@@ -36,11 +35,11 @@ const projects = allProjects
     </div>
     <dl class="key" aria-label="How this notebook is colour-coded">
       <dt class="hand">key</dt>
-      <div><dd><i class="sw b"></i>notes &amp; learnings</dd></div>
-      <div><dd><i class="sw r"></i>projects</dd></div>
-      <div><dd><i class="sw y"></i>work with me</dd></div>
+      <div><dd><i class="mdot k-note"></i>notes &amp; learnings</dd></div>
+      <div><dd><i class="mdot k-project"></i>projects</dd></div>
+      <div><dd><i class="mdot k-yap"></i>yaps &amp; opinions</dd></div>
     </dl>
-    <PostList posts={posts} />
+    <PostList entries={entries} />
   </section>
 
   {projects.length > 0 && (
@@ -50,7 +49,7 @@ const projects = allProjects
         <h2 class="squig r">On the desk</h2>
         <a href="/projects/" class="hand">all projects →</a>
       </div>
-      <div class="grid">{projects.map((project, i) => <ProjectCard project={project} index={i} />)}</div>
+      <div class="grid desk">{projects.map((project, i) => <ProjectCard project={project} index={i} />)}</div>
     </section>
   )}
 
@@ -85,7 +84,7 @@ const projects = allProjects
     mask-image: radial-gradient(closest-side, #000 70%, transparent); }
   :global(:root[data-theme='dark']) .hero::before { --wear: 120 95 60; opacity: 0.7; }
   .hero h1 { max-width: min(15ch, 8em); }
-  .eyebrow .shares { color: var(--ink-2); }
+  .eyebrow .shares { color: var(--ink-2); font-size: 0.8em; }
   /* Sketch of Sim: sits on the page beside the greeting, behind the text. */
   .eyebrow { position: relative; }
   .me { position: absolute; z-index: -1; width: 170px; height: auto; left: calc(100% + 80px); top: 14px; transform: rotate(9deg); pointer-events: none; user-select: none; }
@@ -122,8 +121,7 @@ const projects = allProjects
   .key { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 1.2rem; margin: -0.4rem 0 1.4rem; padding: 0.55rem 1.1rem; border-radius: 999px; background: var(--paper); box-shadow: var(--shadow-soft); width: fit-content; font-size: 0.92rem; }
   .key dt { color: var(--red); font-size: 1.45rem; margin-right: 0.2rem; }
   .key dd { margin: 0; display: flex; align-items: center; gap: 0.45rem; }
-  .sw { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
-  .sw.b { background: var(--blue); } .sw.r { background: var(--red); } .sw.y { background: var(--yellow); }
+  .key .mdot { width: 16px; height: 14px; }
 
   .sk { position: relative; }
   .section-head, :global(.log), .grid, .ps { position: relative; z-index: 1; }

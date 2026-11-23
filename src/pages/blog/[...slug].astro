@@ -22,35 +22,40 @@ const { post, newer, older } = Astro.props;
 const { Content } = await render(post);
 const { title, description, date, tags, cover, keyPoints } = post.data;
 // Sanity images can be resized on the fly; local images are used as they are.
-const coverSrc = cover && (/^https?:/.test(cover.url) ? imageUrl(cover as any, 1760, 990) : cover.url);
+// The whole photo, never cropped: only the width is set.
+const coverSrc = cover && (/^https?:/.test(cover.url) ? imageUrl(cover as any, 900) : cover.url);
 ---
 <Base title={title} description={description} type="article">
   <article>
-    <header class="narrow head">
-      <p class="when">
-        <time datetime={date.toISOString()}>{formatDate(date)}</time>
-        <span aria-hidden="true">·</span> {readingTime(post.body)}
-      </p>
-      <h1>{title}</h1>
-      <p class="dek">{description}</p>
+    <header class:list={['wrap head', { 'has-cover': cover }]}>
+      <div class="intro">
+        <p class="when">
+          <time datetime={date.toISOString()}>{formatDate(date)}</time>
+          <span aria-hidden="true">·</span> {readingTime(post.body)}
+        </p>
+        <h1>{title}</h1>
+        <p class="dek">{description}</p>
+        {keyPoints.length > 0 && (
+          <aside class="glance" aria-label="The short version">
+            <p class="glance-label">the short version</p>
+            <ul>{keyPoints.map((k) => <li>{k}</li>)}</ul>
+          </aside>
+        )}
+      </div>
+      {cover && (
+        /* A print taped into the notebook: the whole photo, uncropped. */
+        <figure class="cover polaroid">
+          <img src={coverSrc} alt={cover.alt ?? ''} fetchpriority="high" />
+          {cover.caption && <figcaption>{cover.caption}</figcaption>}
+        </figure>
+      )}
     </header>
 
-    {cover && (
-      <figure class="cover">
-        <img src={coverSrc} alt={cover.alt ?? ''} width="1760" height="990" fetchpriority="high" />
-        {cover.caption && <figcaption>{cover.caption}</figcaption>}
-      </figure>
-    )}
+    <div class="wrap">
+      <div class="prose note flow"><Content /></div>
+    </div>
 
-    <div class="narrow">
-      {keyPoints.length > 0 && (
-        <aside class="glance" aria-label="The short version">
-          <p class="glance-label">the short version</p>
-          <ul>{keyPoints.map((k) => <li>{k}</li>)}</ul>
-        </aside>
-      )}
-
-      <div class="prose note"><Content /></div>
+    <div class="wrap tail">
 
       {tags.length > 0 && <p class="tags">{tags.map((t) => <span class="tag">#{t}</span>)}</p>}
 
@@ -74,19 +79,25 @@ const coverSrc = cover && (/^https?:/.test(cover.url) ? imageUrl(cover as any, 1
 </Base>
 <style>
   article { padding-block: clamp(2rem, 6vw, 4rem) clamp(3rem, 8vw, 5rem); }
-  /* A slightly narrower column than other pages: about 60–65 characters a line. */
-  .narrow { width: min(100% - 32px, 41rem); }
+  /* Tags, older/newer and the thank-you sit under the text column. */
+  .tail > * { max-width: 44rem; }
 
-  .head { margin-bottom: clamp(1.75rem, 4vw, 2.5rem); }
+  .head { display: grid; gap: clamp(1.5rem, 5vw, 4.5rem); align-items: start; margin-bottom: clamp(2rem, 5vw, 3.5rem); }
+  .head.has-cover { grid-template-columns: minmax(0, 44rem) minmax(0, 1fr); }
+  .head.has-cover .polaroid { justify-self: center; }
+  .head:not(.has-cover) .intro { max-width: 44rem; }
+  @media (max-width: 860px) { .head.has-cover { grid-template-columns: 1fr; } }
   .when { font: 400 1.5rem/1 var(--hand); color: var(--red); margin: 0 0 0.9rem; display: inline-block; transform: rotate(-1.5deg); }
   .when span { margin: 0 0.15em; }
   h1 { font-size: clamp(2.3rem, 6.2vw, 3.9rem); line-height: 1.02; margin-bottom: 0.4em; text-wrap: balance; }
   .dek { font-size: clamp(1.15rem, 2.2vw, 1.35rem); line-height: 1.5; color: var(--ink-2); margin: 0; text-wrap: pretty; }
 
-  /* The photo runs a little wider than the text, like a print taped across the page. */
-  .cover { width: min(100% - 32px, 55rem); margin: 0 auto clamp(2rem, 5vw, 3rem); }
-  .cover img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: var(--radius); box-shadow: var(--shadow-soft); background: var(--paper-2); }
-  .cover figcaption { font: 400 1.35rem/1.2 var(--hand); color: var(--ink-2); text-align: center; margin-top: 0.7rem; }
+  /* The photo is a print taped into the notebook, like the one on About. */
+  .polaroid { position: relative; margin: 0.5rem auto 0; width: min(100%, 24rem); background: #fff; padding: 12px 12px 0; border-radius: 3px; box-shadow: 0 1px 2px rgb(0 0 0 / 8%), 0 14px 30px -10px rgb(0 0 0 / 28%); transform: rotate(2deg); }
+  .polaroid::before { content: ''; position: absolute; top: -12px; left: 50%; width: 92px; height: 26px; margin-left: -46px; background: rgb(255 241 191 / 0.75); transform: rotate(-3deg); border-radius: 2px; box-shadow: 0 1px 2px rgb(0 0 0 / 8%); }
+  .polaroid img { display: block; width: 100%; height: auto; border-radius: 1px; }
+  .polaroid figcaption { font: 400 1.4rem/1.2 var(--hand); color: #333; text-align: center; margin: 0.55rem 0 0.7rem; }
+  @media (max-width: 860px) { .polaroid { width: min(85%, 20rem); } }
 
   /* The short version: a flat yellow sticky. */
   .glance {

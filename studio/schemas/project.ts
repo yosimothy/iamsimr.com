@@ -20,6 +20,7 @@ export const project = defineType({
     defineField({ name: 'stack', type: 'array', of: [{ type: 'string' }], options: { layout: 'tags' } }),
     defineField({ name: 'link', type: 'url', title: 'Live URL' }),
     defineField({ name: 'repo', type: 'url', title: 'Code URL' }),
+    defineField({ name: 'publishedAt', type: 'datetime', title: 'Added', description: 'When this project went up. Used to place it in Latest entries.' }),
     defineField({ name: 'featured', type: 'boolean', description: 'Show on the home page', initialValue: false }),
     defineField({ name: 'order', type: 'number', description: 'Lower numbers show first', initialValue: 100 }),
     defineField({ name: 'body', type: 'body', title: 'Write-up' }),

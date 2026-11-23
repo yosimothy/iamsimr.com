@@ -1,21 +1,23 @@
 ---
-// Posts as a bullet-journal log: a bullet, the entry, a handwritten date.
-import type { CollectionEntry } from 'astro:content';
-interface Props { posts: CollectionEntry<'blog'>[]; }
-const { posts } = Astro.props;
+// Entries as a bullet-journal log: a marker dot (its colour says what kind
+// of entry it is), the entry, and a handwritten date.
+import type { Entry } from '../lib/posts';
+interface Props { entries: Entry[]; }
+const { entries } = Astro.props;
 const fmt = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+const label = { note: 'note', yap: 'yap', project: 'project' } as const;
 ---
 <ul class="log">
-  {posts.map((post) => (
+  {entries.map((e) => (
     <li>
-      <a href={`/blog/${post.id}/`}>
-        <span class="bullet" aria-hidden="true"></span>
+      <a href={e.href}>
+        <span class="bullet"><i class={`mdot k-${e.kind}`} aria-hidden="true"></i><span class="sr-only">{label[e.kind]}: </span></span>
         <span class="body">
-          <span class="title">{post.data.title}{post.data.draft && <em class="draft"> draft</em>}</span>
-          <span class="desc muted">{post.data.description}</span>
-          {post.data.tags.length > 0 && <span class="tags">{post.data.tags.map((t) => `#${t}`).join('  ')}</span>}
+          <span class="title">{e.title}{e.draft && <em class="draft"> draft</em>}</span>
+          <span class="desc muted">{e.desc}</span>
+          {e.tags.length > 0 && <span class="tags">{e.tags.map((t) => `#${t}`).join('  ')}</span>}
         </span>
-        <time class="hand" datetime={post.data.date.toISOString()}>{fmt(post.data.date)}</time>
+        {e.date && <time class="hand" datetime={e.date.toISOString()}>{fmt(e.date)}</time>}
       </a>
     </li>
   ))}
@@ -24,16 +26,18 @@ const fmt = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'n
   .log { list-style: none; padding: 0; margin: 0; }
   li + li { border-top: 1.5px dashed var(--rule); }
   a { display: grid; grid-template-columns: 1.4rem 1fr auto; gap: 0 1rem; padding: 1.15rem 0; text-decoration: none; align-items: start; }
-  .bullet { width: 10px; height: 10px; border-radius: 50%; background: var(--blue); margin-top: 0.6rem; justify-self: center; }
-  a:hover .bullet { background: transparent; border: 2.5px solid var(--blue); }
+  .bullet { margin-top: 0.45rem; justify-self: center; }
+  .bullet .mdot { width: 17px; height: 15px; transition: transform 0.2s ease; }
+  a:hover .mdot { transform: scale(1.25) rotate(8deg); }
   a:hover .title { text-decoration: underline 3px var(--yellow); text-underline-offset: 4px; }
   a:hover { color: var(--ink); }
   .body { display: grid; gap: 0.15rem; }
   .title { font: 700 1.25rem/1.25 var(--display); letter-spacing: -0.015em; }
   .desc { font-size: 0.98rem; }
-  .tags { font-size: 0.8rem; color: var(--blue); font-weight: 600; }
+  .tags { font-size: 0.8rem; color: var(--ink-2); font-weight: 500; }
   time { color: var(--ink-2); font-size: 1.3rem; white-space: nowrap; padding-top: 0.1rem; }
   .draft { color: var(--red); font-family: var(--hand); font-size: 1.1rem; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   @media (max-width: 640px) {
     a { grid-template-columns: 1.4rem 1fr; }
     time { grid-column: 2; grid-row: 1; padding: 0 0 0.1rem; font-size: 1.15rem; }

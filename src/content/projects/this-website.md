@@ -19,7 +19,7 @@ Build a personal site that I fully own and understand, end to end, while keeping
 - Infrastructure as code: a private S3 bucket behind CloudFront with HTTPS, security headers and an edge function for clean URLs.
 - CI/CD with GitHub Actions using OIDC, so there are no long-lived AWS keys anywhere.
 
-The full write-up is in [How this site is built](/blog/how-this-site-is-built/).
+
 
 ## What I learned
 

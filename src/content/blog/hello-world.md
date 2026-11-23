@@ -19,7 +19,7 @@ So here it is. This site is going to do three jobs:
 
 I could have used a website builder and been done in an afternoon. But part of the point was to understand the whole pipeline: how a page goes from a text file on my laptop to a server somewhere, and then to your screen in a fraction of a second.
 
-I wrote up exactly how that works in [How this site is built](/blog/how-this-site-is-built/), if you're curious.
+I wrote up exactly how that works in [the iamsimr.com project](/projects/this-website/), if you're curious.
 
 ## What's next
 

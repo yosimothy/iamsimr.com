@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import PostList from '../../components/PostList.astro';
-import { getPosts } from '../../lib/posts';
+import { getPosts, postEntries } from '../../lib/posts';
 const posts = await getPosts();
 const tags = [...new Set(posts.flatMap((p) => p.data.tags))].sort();
 ---
@@ -11,7 +11,7 @@ const tags = [...new Set(posts.flatMap((p) => p.data.tags))].sort();
     <h1><span class="scribble blue">Notes</span> &amp; learnings</h1>
     <p class="muted lede">Everything I've written down: what I'm learning, project updates, and things I'm into. Newest first. <a href="/rss.xml">Subscribe via RSS</a>.</p>
     {tags.length > 0 && <p>{tags.map((t) => <span class="tag">#{t}</span>)}</p>}
-    <PostList posts={posts} />
+    <PostList entries={postEntries(posts)} />
   </section>
 </Base>
 <style>section { position: relative; } h1, .lede, :global(.log) { position: relative; z-index: 1; }.lede { font-size: 1.15rem; max-width: 56ch; margin-bottom: 1.5rem; }</style>

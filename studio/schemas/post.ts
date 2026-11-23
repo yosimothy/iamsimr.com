@@ -13,6 +13,12 @@ export const post = defineType({
       validation: (r) => r.required(),
     }),
     defineField({
+      name: 'kind', type: 'string', title: 'Kind',
+      description: 'A note (learnings, write-ups) or a yap (opinions and rambles: a movie, an album, a hot take).',
+      options: { list: [{ title: 'Note', value: 'note' }, { title: 'Yap', value: 'yap' }], layout: 'radio', direction: 'horizontal' },
+      initialValue: 'note',
+    }),
+    defineField({
       name: 'description', type: 'text', rows: 2,
       description: 'One or two sentences. Shown in lists, search results and link previews.',
       validation: (r) => r.required().max(200),
